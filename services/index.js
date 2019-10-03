@@ -5,5 +5,6 @@ module.exports = {
   UserService: require("./userService"),
   ForgetPasswordService: require("./forgetPasswordService"),
   AdminService: require("./adminService"),
-  IntentService: require("./watson/intentService")
+  IntentService: require("./watson/intentService"),
+  EntityService: require("./watson/entityService")
 };

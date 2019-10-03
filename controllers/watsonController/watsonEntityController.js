@@ -11,39 +11,39 @@ const ERROR = CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR;
 
 const assistant = CONFIG.WATSON_CONFIG.assistantV1;
 
-let createIntent = (intent, callback) => {
-  const createIntentInDb = (callback) => {
-    Service.IntentService.createIntent(intent)
+let createEntity = (entity, callback) => {
+  const createEntityInDb = (callback) => {
+    Service.EntityService.createEntity(entity)
       .then(res => { return callback(null,res) })
       .catch(err =>{ return callback(err, null)});
   };
 
-  const createIntentInWatson = (data, callback) => {
-    assistant.createIntent(intent)
+  const createEntityInWatson = (data, callback) => {
+    assistant.createEntity(entity)
       .then(res => { return callback(null, res); })
       .catch(err => { return callback(err, null); });
   };
 
   if (callback===null) {
     return new Promise((resolve,reject) => {
-      waterfall([createIntentInDb, createIntentInWatson], (err, data) => {
+      waterfall([createEntityInDb, createEntityInWatson], (err, data) => {
         if (err) reject(err);
         else resolve(data);
       });
     });
   }
 
-  waterfall([createIntentInDb, createIntentInWatson], (err, data) => {
+  waterfall([createEntityInDb, createEntityInWatson], (err, data) => {
     if (err) callback(err,null);
     else callback(null,data);
   });
 };
 
 const getFromDb = (q,callback) => {
-  Service.IntentService.getIntent(q,{},{},callback)
+  Service.EntityService.getEntity(q,{},{},callback)
 };
 
-const updateIntentContent = (op,data,cb) => {
+const updateEntityContent = (op,data,cb) => {
   try{
     op = JSON.stringify(op);
     if (op.hasOwnProperty('examples')){
@@ -62,12 +62,12 @@ const updateIntentContent = (op,data,cb) => {
 
 const updateDb = (op,q,callback) => {
   op= {$push: {examples: op.examples}};
-  Service.IntentService.overwriteIntent(q,op,{},callback)
+  Service.EntityService.overwriteEntity(q,op,{},callback)
 };
 
 const overwriteDb = (op,q,callback) => {
   op= {$set: {examples: op.examples}};
-  Service.IntentService.overwriteIntent(q,op,{},callback)
+  Service.EntityService.overwriteEntity(q,op,{},callback)
 };
 
 const overwriteWatson = (op,callback) => {
@@ -76,16 +76,16 @@ const overwriteWatson = (op,callback) => {
   }
   op.new_examples = op.examples;
   delete op.examples;
-  assistant.updateIntent(op,callback)
+  assistant.updateEntity(op,callback)
 };
 
-let updateIntent = (data, callback) => {
+let updateEntity = (data, callback) => {
   let q = {workplace_id: data.workplace_id,
-  intent: data.intent};
+  entity: data.entity};
 
   let waterfall_func_list = [
     (callback) => {getFromDb(q,callback)},
-    (op,callback) => {updateIntentContent(op,data,callback)},
+    (op,callback) => {updateEntityContent(op,data,callback)},
     (op,callback)=>{updateDb(op,q,callback)},
     (op,callback) => {overwriteWatson(op,callback)}];
 
@@ -103,12 +103,12 @@ let updateIntent = (data, callback) => {
   });
 };
 
-let overwriteIntent = (data,callback) => {
-  let intent = data;
+let overwriteEntity = (data,callback) => {
+  let entity = data;
   let q = {workplace_id: data.workplace_id,
-    intent: data.intent};
+    entity: data.entity};
 
-  let waterfall_func_list = [(callback)=>{overwriteDb(intent,q,callback)},
+  let waterfall_func_list = [(callback)=>{overwriteDb(entity,q,callback)},
     (op,callback) => {overwriteWatson(op,callback)}];
 
   if (callback===null) {
@@ -126,7 +126,7 @@ let overwriteIntent = (data,callback) => {
   });
 };
 module.exports = {
-  createIntent:createIntent,
-  updateIntent:updateIntent,
-  overwriteIntent:overwriteIntent
+  createEntity:createEntity,
+  updateEntity:updateEntity,
+  overwriteEntity:overwriteEntity
 };

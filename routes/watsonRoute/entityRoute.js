@@ -5,20 +5,20 @@ import Controller from "../../controllers";
 
 const baseEndpointURL = '/api/admin/assistant';
 const {STATUS_MSG} = Config.APP_CONSTANTS;
-//TODO: Update validation based on the new Intent Model.
 //TODO: Default should only work in Development
+//TODO: Update validation based on the new Entity Model.
 
-// Intent APIs
-export let createIntentApi = {
+// Entity APIs
+export let createEntityApi = {
   method: "POST",
-  path: baseEndpointURL + "/intents",
+  path: baseEndpointURL + "/entities",
   config: {
-    description: "create intentModel api",
-    tags: ["api", "demo", 'watson', 'create', 'intent'],
+    description: "create entityModel api",
+    tags: ["api", "demo", 'watson', 'create', 'entity'],
     handler: function (request, h) {
       var payloadData = request.payload;
       return new Promise((resolve, reject) => {
-        Controller.WatsonIntentController.createIntent(payloadData, function (err, data) {
+        Controller.WatsonEntityController.createEntity(payloadData, function (err, data) {
           if (err) reject(UniversalFunctions.sendError(err));
           else
             resolve(UniversalFunctions
@@ -29,8 +29,9 @@ export let createIntentApi = {
     },
     validate: {
       payload: {
+
         workspace_id: Joi.string().default(Config.WATSON_CONFIG.assistantWorkspaceId),
-        intent: Joi.string().required(),
+        entity: Joi.string().required(),
         examples: Joi.array().items(
           Joi.object().keys({
             text: Joi.string().required()
@@ -48,18 +49,18 @@ export let createIntentApi = {
   }
 };
 
-//   Updates/Overwrites the intentModel examples
-export const updateIntentApi = {
+//   Updates/Overwrites the entityModel examples
+export const updateEntityApi = {
   method: "PUT",
-  path: baseEndpointURL + "/intents",
+  path: baseEndpointURL + "/entities",
   config: {
-    description: "overwrites the intentModel examples",
-    tags: ["api", "demo", 'watson', 'update', 'intent'],
+    description: "overwrites the entityModel examples",
+    tags: ["api", "demo", 'watson', 'update', 'entity'],
     handler: function (request, h) {
       var payloadData = request.payload;
       return new Promise((resolve, reject) => {
         if (!payloadData.overwrite)
-          Controller.WatsonIntentController.updateIntent(payloadData,(err, data) => {
+          Controller.WatsonEntityController.updateEntity(payloadData,(err, data) => {
             if (err) reject(UniversalFunctions.sendError(err));
             else
             {
@@ -68,7 +69,7 @@ export const updateIntentApi = {
             }
           });
         else
-          Controller.WatsonIntentController.overwriteIntent(payloadData,(err,data) => {
+          Controller.WatsonEntityController.overwriteEntity(payloadData,(err,data) => {
             if (err) reject(UniversalFunctions.sendError(err));
             else
               resolve(
@@ -81,7 +82,7 @@ export const updateIntentApi = {
       payload: {
         overwrite: Joi.boolean().optional().default(false),
         workspace_id: Joi.string().default(Config.WATSON_CONFIG.assistantWorkspaceId),
-        intent: Joi.string().required(),
+        entity: Joi.string().required(),
         examples: Joi.array().items(
           Joi.object().keys({
             text: Joi.string().required()
@@ -99,5 +100,5 @@ export const updateIntentApi = {
   }
 };
 
-var routes = [createIntentApi,updateIntentApi];
+var routes = [createEntityApi,updateEntityApi];
 module.exports = routes;

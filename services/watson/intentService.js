@@ -3,17 +3,10 @@
  * Updated all the function to work with Promises as well as callbacks.
  */
 "use strict";
-// import  from '../../models';
-const Models= require('../../models');
-import {isNull, isUndefined} from 'underscore'
-// var Models = require("../../models");
-// const WatsonIntent = intentModel;
+import {WatsonIntent} from '../../models';
+import {isNullOrUndefined} from '../../utils/universalFunctions'
 
-const isNullOrUndefined = thing => {
-  return isNull(thing)||isUndefined(thing)
-};
-
-export let updateIntent = (criteria, dataToSet, options, callback) => {
+let updateIntent = (criteria, dataToSet, options, callback) => {
   options.lean = true;
   options.new = true;
   //  get Intent from DB
@@ -34,7 +27,7 @@ export let updateIntent = (criteria, dataToSet, options, callback) => {
   overwriteIntent(criteria,newDataToSet,options,callback)
 };
 
-export let overwriteIntent = (criteria, dataToSet, options, callback) => {
+let overwriteIntent = (criteria, dataToSet, options, callback) => {
   options.lean = true;
   options.new = true;
 
@@ -46,11 +39,14 @@ export let overwriteIntent = (criteria, dataToSet, options, callback) => {
       });
     });
 
-  Models.WatsonIntent.findOneAndUpdate(criteria, dataToSet, options, callback);
+  WatsonIntent.findOneAndUpdate(criteria, dataToSet, options, function (err,data) {
+    if (err) callback(err);
+    else callback(null,data);
+  });
 };
 
 //Insert Intent in DB
-export let createIntent = (objToSave, callback) => {
+let createIntent = (objToSave, callback) => {
   if (callback===null || callback===undefined)
     return new Promise((resolve, reject) => {
       new WatsonIntent(objToSave).save(function (err, data) {
@@ -58,13 +54,11 @@ export let createIntent = (objToSave, callback) => {
         else resolve(data);
       });
     });
-  let temp = new WatsonIntent(objToSave);
-  temp.save(callback)
-  // console.log("adkdjankdcy")
+  new WatsonIntent(objToSave).save(callback)
 };
 
 //Delete Intent in DB
-export let deleteIntent = (criteria, callback) => {
+let deleteIntent = (criteria, callback) => {
   if(callback===null)
     return new Promise((resolve, reject) => {
       WatsonIntent.findOneAndRemove(criteria, function (err, data) {
@@ -76,16 +70,24 @@ export let deleteIntent = (criteria, callback) => {
 };
 
 //Get Intents from DB
-export let getIntent = (criteria, projection, options, callback) => {
+let getIntent = (criteria, projection, options, callback) => {
     options.lean = false;
 
   if(isNullOrUndefined(callback))
     return new Promise((resolve, reject) => {
-      Models.WatsonIntent.find(criteria, projection, options, function (err, data) {
+      WatsonIntent.find(criteria, projection, options, function (err, data) {
         if (err) reject(err);
         else resolve(data);
       });
     });
-  Models.WatsonIntent.find(criteria, projection, options, callback);
+  WatsonIntent.find(criteria, projection, options, callback);
 
 };
+
+export {
+  updateIntent,
+  getIntent,
+  deleteIntent,
+  createIntent,
+  overwriteIntent
+}

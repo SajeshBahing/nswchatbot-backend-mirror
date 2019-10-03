@@ -13,9 +13,12 @@ import adminController from './adminController/adminBaseController';
 
 import watsonIntentController from './watsonController/watsonIntentController';
 
+import watsonEntityController from './watsonController/watsonEntityController';
+
 module.exports = {
   DemoBaseController: demoController,
   UserBaseController: userController,
   AdminBaseController: adminController,
-  WatsonIntentController: watsonIntentController
+  WatsonIntentController: watsonIntentController,
+  WatsonEntityController: watsonEntityController
 };

@@ -11,11 +11,12 @@ var validator = require('validator');
 var Moment = require('moment');
 var MomentRange = require('moment-range');
 var moment = MomentRange.extendMoment(Moment);
+import {isNull, isUndefined} from 'underscore'
 
 var sendError = function (data) {
-    console.trace('ERROR OCCURED ', data);
+    console.trace('ERROR OCCURRED ', data);
     if (typeof data == 'object' && data.hasOwnProperty('statusCode') && data.hasOwnProperty('customMessage')) {
-        console.log('attaching resposnetype',data.type);
+        console.log('attaching response type',data.type);
         var errorToSend = new Boom( data.customMessage,{statusCode:data.statusCode});
         errorToSend.output.payload.responseType = data.type;
         return errorToSend;
@@ -195,6 +196,11 @@ function getRange(startDate, endDate, diffIn) {
 
 }
 
+const isNullOrUndefined = thing => {
+  return isNull(thing)||isUndefined(thing)
+};
+
+
 module.exports = {
 	generateRandomString: generateRandomString,
     CryptData: CryptData,
@@ -213,5 +219,6 @@ module.exports = {
     generateRandomNumber:generateRandomNumber,
     createArray:createArray,
     generateRandomAlphabet:generateRandomAlphabet,
-    getRange:getRange
+    getRange:getRange,
+    isNullOrUndefined:isNullOrUndefined
 };

@@ -5,17 +5,19 @@ let mongoose = require("mongoose");
 let Schema = mongoose.Schema;
 var Config = require("../../config");
 
-export const intentModel = new Schema({
-  workspace_id: {
-    type: String
-  },
+const intentModel = new Schema({
+  workspace_id: { type: String},
   intent: {
     type: String,
     unique: true
   },
+  description: {type: String},
   examples: [
-    {
-      text: {type: String}
+    {text: {type: String}},
+    {mentions: [{
+      entity: {type:String},
+      location: [{type:Number}]
+      }]
     }
   ]
 });

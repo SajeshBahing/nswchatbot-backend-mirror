@@ -26,7 +26,47 @@ var DATABASE = {
   }
 };
 
+const getErrorStatusMsgFromCode = (code) => {
+  const data = STATUS_MSG.ERROR;
+  for (let k in data){
+    if (data[k].statusCode === code){
+      return data[k];
+    }
+  }
+  return data.DEFAULT
+};
+
+const getSuccessStatusMsgFromCode = (code) => {
+  const data = STATUS_MSG.SUCCESS;
+  for (let k in data){
+    if (data[k].statusCode === code){
+      return data[k];
+    }
+  }
+  return data.DEFAULT
+};
+
+const setCustomMsg = (err,msg) =>{
+  err.customMessage = msg;
+  return err
+};
+
 var STATUS_MSG = {
+  getStatusMsgFromCode: function(code){
+    let data;
+    if (code>=400)
+      data = STATUS_MSG.ERROR;
+    else
+      data = STATUS_MSG.SUCCESS;
+
+      for (let k in data){
+        if (data[k].statusCode === code){
+          return data[k];
+        }
+      }
+    return data.DEFAULT;
+
+  },
   ERROR: {
     DEFAULT: {
       statusCode: 400,
@@ -214,8 +254,14 @@ var STATUS_MSG = {
       statusCode: 400,
       customMessage: "Inavlid email format",
       type: "INVALID_EMAIL_FORMAT"
+    },
+    RESOURCE_NOT_FOUND: {
+      statusCode: 404,
+      customMessage: "Resource Not Found",
+      type:"RESOURCE_NOT_FOUND"
     }
   },
+
   SUCCESS: {
     DEFAULT: {
       statusCode: 200,
@@ -284,7 +330,9 @@ var APP_CONSTANTS = {
   STATUS_MSG: STATUS_MSG,
   notificationMessages: notificationMessages,
   CUSTOM_ERROR_404: CUSTOM_ERROR_404,
-  CUSTOM_ERROR: CUSTOM_ERROR
+  CUSTOM_ERROR: CUSTOM_ERROR,
+  getErrorStatusMsgFromCode:getErrorStatusMsgFromCode,
+  getSuccessStatusMsgFromCode:getSuccessStatusMsgFromCode
 };
 
 module.exports = APP_CONSTANTS;

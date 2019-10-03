@@ -17,6 +17,7 @@ module.exports = {
     // User:require('./user'),
     ForgetPassword:require('./forgotPasswordRequest'),
     Admin: require('./admin'),
-    WatsonIntent: require('./watson/intents')
+    WatsonIntent: require('./watson/intents'),
+    WatsonEntity: require('./watson/entity')
 };
 
