@@ -11,6 +11,7 @@ const ERROR = CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR;
 
 const assistant = CONFIG.WATSON_CONFIG.assistantV1;
 
+//TODO: Revert mongoDb insert if Watson throws an error.
 let createIntent = (intent, callback) => {
   const createIntentInDb = (callback) => {
     Service.IntentService.createIntent(intent)
@@ -125,8 +126,28 @@ let overwriteIntent = (data,callback) => {
     else callback(null,data);
   });
 };
+
+let listIntents = (query,callback) =>{
+  // let params = {
+  //   workspace_id: query.workspace_id,
+  //   _export: query._export,
+  //   page_limit: query.page_limit,
+  //   include_count:query.include_count,
+  //   sort:query.sort,
+  //   cursor: query.cursor,
+  //   include_audit: query.include_audit
+  // };
+  assistant.listIntents(query,callback);
+};
+
+let getIntent = (query,callback) =>{
+  assistant.getIntent(query,callback);
+};
+
 module.exports = {
   createIntent:createIntent,
   updateIntent:updateIntent,
-  overwriteIntent:overwriteIntent
+  overwriteIntent:overwriteIntent,
+  listIntents:listIntents,
+  getIntent:getIntent
 };

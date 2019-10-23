@@ -14,9 +14,10 @@ const intentModel = new Schema({
   description: {type: String},
   examples: [
     {text: {type: String}},
-    {mentions: [{
-      entity: {type:String},
-      location: [{type:Number}]
+    {
+      mentions: [{
+        entity: {type:String},
+        location: [{type:Number}]
       }]
     }
   ]

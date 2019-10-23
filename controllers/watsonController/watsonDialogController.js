@@ -10,39 +10,39 @@ const ERROR = CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR;
 const assistant = CONFIG.WATSON_CONFIG.assistantV1;
 
 //TODO: Should work
-let createEntity = (entity, callback) => {
-  const createEntityInDb = (callback) => {
-    Service.EntityService.createEntity(entity)
+let createDialog = (dialog, callback) => {
+  const createDialogInDb = (callback) => {
+    Service.DialogService.createDialog(dialog)
       .then(res => { return callback(null,res) })
       .catch(err =>{ return callback(err, null)});
   };
 
-  const createEntityInWatson = (data, callback) => {
-    assistant.createEntity(entity)
+  const createDialogInWatson = (data, callback) => {
+    assistant.createDialogNode(dialog)
       .then(res => { return callback(null, res); })
       .catch(err => { return callback(err, null); });
   };
 
   if (callback===null) {
     return new Promise((resolve,reject) => {
-      waterfall([createEntityInDb, createEntityInWatson], (err, data) => {
+      waterfall([createDialogInDb, createDialogInWatson], (err, data) => {
         if (err) reject(err);
         else resolve(data);
       });
     });
-  }
+  };
 
-  waterfall([createEntityInDb, createEntityInWatson], (err, data) => {
+  waterfall([createDialogInDb, createDialogInWatson], (err, data) => {
     if (err) callback(err,null);
     else callback(null,data);
   });
 };
 
 const getFromDb = (q,callback) => {
-  Service.EntityService.getEntity(q,{},{},callback)
+  Service.DialogService.getDialog(q,{},{},callback)
 };
 
-const updateEntityContent = (op,data,cb) => {
+const updateDialogContent = (op,data,cb) => {
   try{
     op = JSON.stringify(op);
     if (op.hasOwnProperty('values')){
@@ -61,12 +61,12 @@ const updateEntityContent = (op,data,cb) => {
 
 const updateDb = (op,q,callback) => {
   op= {$push: {values: op.values}};
-  Service.EntityService.overwriteEntity(q,op,{},callback)
+  Service.DialogService.overwriteDialog(q,op,{},callback)
 };
 
 const overwriteDb = (op,q,callback) => {
   op= {$set: {values: op.values}};
-  Service.EntityService.overwriteEntity(q,op,{},callback)
+  Service.DialogService.overwriteDialog(q,op,{},callback)
 };
 
 const overwriteWatson = (op,callback) => {
@@ -92,16 +92,16 @@ const overwriteWatson = (op,callback) => {
     updateKeys(k)
   }
 
-  assistant.updateEntity(op,callback)
+  assistant.updateDialogNode(op,callback)
 };
 
-let updateEntity = (data, callback) => {
+let updateDialog = (data, callback) => {
   let q = {workplace_id: data.workplace_id,
-  entity: data.entity};
+  dialog: data.dialog};
 
   let waterfall_func_list = [
     (callback) => {getFromDb(q,callback)},
-    (op,callback) => {updateEntityContent(op,data,callback)},
+    (op,callback) => {updateDialogContent(op,data,callback)},
     (op,callback)=>{updateDb(op,q,callback)},
     (op,callback) => {overwriteWatson(op,callback)}];
 
@@ -119,12 +119,12 @@ let updateEntity = (data, callback) => {
   });
 };
 
-let overwriteEntity = (data,callback) => {
-  let entity = data;
+let overwriteDialog = (data,callback) => {
+  let dialog = data;
   let q = {workplace_id: data.workplace_id,
-    entity: data.entity};
+    dialog: data.dialog};
 
-  let waterfall_func_list = [(callback)=>{overwriteDb(entity,q,callback)},
+  let waterfall_func_list = [(callback)=>{overwriteDb(dialog,q,callback)},
     (op,callback) => {overwriteWatson(op,callback)}];
 
   if (callback===null) {
@@ -142,18 +142,18 @@ let overwriteEntity = (data,callback) => {
   });
 };
 
-let getEntity = (query,callback) => {
+let getDialog = (query,callback) => {
   let params = {
     workspace_id: query.workspace_id,
-    entity: query.entity,
+    dialog: query.dialog,
     _export: query._export,
     include_audit: query.include_audit
   };
 
-  assistant.getEntity(params,callback)
+  assistant.getDialogNode(params,callback)
 };
 
-let listEntities = (query,callback) =>{
+let listDialogs = (query,callback) =>{
   // let params = {
   //   workspace_id: query.workspace_id,
   //   _export: query._export,
@@ -164,14 +164,13 @@ let listEntities = (query,callback) =>{
   //   include_audit: query.include_audit
   // };
 
-  assistant.listEntities(query,callback);
-
+  assistant.listDialogNodes(query,callback);
 };
 
 module.exports = {
-  createEntity:createEntity,
-  updateEntity:updateEntity,
-  overwriteEntity:overwriteEntity,
-  getEntity: getEntity,
-  listEntities: listEntities
+  createDialog:createDialog,
+  updateDialog:updateDialog,
+  overwriteDialog:overwriteDialog,
+  getDialog: getDialog,
+  listDialog: listDialogs
 };
