@@ -1,0 +1,15 @@
+version: "3"
+services:
+  backend:
+    container_name: nswchatbot-backend
+    build: .
+    restart: always
+    command: bash -c "node -r @babel/register entry.js"
+    ports:
+      - "8051:3000"
+      - "8052:8000"
+
+networks:
+  default:
+    external:
+      name: nswchatbot
