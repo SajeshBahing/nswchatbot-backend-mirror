@@ -110,18 +110,20 @@ const watsonMiddleware = new WatsonMiddleware({
   url: process.env.ASSISTANT_URL,
   workspace_id: Config.WATSON_CONFIG.assistantWorkspaceId,
   version: '2019-02-28',
-  minimum_confidence: 0.5, // (Optional) Default is 0.75
+  minimum_confidence: 0.75, // (Optional) Default is 0.75
 });
 
 cont.middleware.receive.use(
   watsonMiddleware.receive.bind(watsonMiddleware),
 );
 
-cont.on("message",async (bot, message) => {
-  console.log("dskhsbdk"+message);
-return await bot.reply(message,"yo");
-});
+// cont.before();
 
+cont.on("welcome",async (bot, message) => {
+  console.log("dskhsbdk"+JSON.stringify(message,null,2));
+  message.watsonData.output = message.welcome_message? message.watsonData.output:'';
+  return await bot.reply(message,message.watsonData.output);
+});
 
 cont.hears(
   ['.*'],
