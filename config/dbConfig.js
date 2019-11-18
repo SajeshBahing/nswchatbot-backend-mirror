@@ -2,7 +2,7 @@
  * Created by Navit
  */
 
- 'use strict';
+'use strict';
 import mongoose from 'mongoose'
 var mongo = {
     // URI: process.env.MONGO_URI || 'mongodb://localhost/User_Onboarding_Deakin',

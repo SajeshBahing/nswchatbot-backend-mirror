@@ -1,6 +1,8 @@
 'use strict'
 // Read .env file.
 import "@babel/polyfill";
+// import "core-js/stable";
+// import "regenerator-runtime/runtime";
 import {config} from "dotenv";
 config();
 

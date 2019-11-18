@@ -98,7 +98,7 @@ const { Botkit } = require('botkit');
 
 const WebAdapter = require('botbuilder-adapter-web').WebAdapter;
 
-const adapter = new WebAdapter();
+const adapter = new WebAdapter({});
 
 const cont = new Botkit({
     adapter:adapter,
@@ -119,7 +119,7 @@ cont.middleware.receive.use(
 
 // cont.before();
 
-cont.on("welcome",async (bot, message) => {
+cont.on("conversation_start",async (bot, message) => {
   console.log("dskhsbdk"+JSON.stringify(message,null,2));
   message.watsonData.output = message.welcome_message? message.watsonData.output:'';
   return await bot.reply(message,message.watsonData.output);
