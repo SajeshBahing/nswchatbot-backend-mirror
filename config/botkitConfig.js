@@ -1,13 +1,19 @@
 import { WatsonMiddleware } from 'botkit-middleware-watson';
-const { Botkit } = require('botkit');
-let WatsonConfig = require('./watsonConfig');
-const WebAdapter = require('botbuilder-adapter-web').WebAdapter;
+import { MemoryStorage } from 'botbuilder';
 
+const { Botkit } = require('botkit');
+const WatsonConfig = require('./watsonConfig');
+const WebAdapter = require('botbuilder-adapter-web').WebAdapter;
 const adapter = new WebAdapter({});
 
 const botkit = new Botkit({
   adapter:adapter,
   webhook_uri: "/api/messages",
+  storage : new MemoryStorage()
+});
+
+botkit.webserver.use((request, response) => {
+  console.log(request);
 });
 
 const watsonMiddleware = new WatsonMiddleware({
@@ -15,7 +21,7 @@ const watsonMiddleware = new WatsonMiddleware({
   url: process.env.ASSISTANT_URL,
   workspace_id: WatsonConfig.assistantWorkspaceId,
   version: '2019-02-28',
-  minimum_confidence: 0.75, // (Optional) Default is 0.75
+  minimum_confidence: 0.75, // (Optional) Default is 0.75,
 });
 
 botkit.middleware.receive.use(
