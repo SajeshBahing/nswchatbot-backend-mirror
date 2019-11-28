@@ -7,7 +7,8 @@ let URL = require('url').URL;
 import {verifyConnection, logMessageToFile} from '../../lib/LoggingManager';
 
 botkit.on("welcome", async (bot, message) => {
-  // console.log("conversation_start: Welcome Message: \n\n"+JSON.stringify(message,null,2));
+  verifyConnection(bot, message);
+
   message.watsonData.output = message.welcome_message? message.watsonData.output:'';
 
   return await bot.reply(message, message.watsonData.output);
@@ -19,16 +20,14 @@ watsonMiddleware.before = (message, payload) => {
     customerID = message.user;
   }
   //some actions here
+
   payload = {...payload, headers : {'X-Watson-Metadata': 'customer_id=' + customerID}};
 
   return payload;
 }
 
 function logMessage( bot, message, next) {
-  if (message.type === 'welcome') {
-    //verifyConnection(bot, message, cb); cb will fire after client disconnect is detected and data dumped to mongodb
-    verifyConnection(bot, message);
-  } else {
+  if (message.type !== 'welcome') {
     let user_id = (typeof message.recipient === 'undefined') ? message.user : message.recipient.id;
     let sender = (typeof message.recipient === 'undefined') ? 'user' : 'bot';
     let session_id = bot.controller.adapter.getConnection(user_id).session_id;
