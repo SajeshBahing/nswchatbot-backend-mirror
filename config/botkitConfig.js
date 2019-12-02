@@ -1,5 +1,7 @@
 import { WatsonMiddleware } from 'botkit-middleware-watson';
 import { MemoryStorage } from 'botbuilder';
+import { SessionManager } from '../lib/SessionManager';
+import { LogManager } from '../lib/LogManager';
 
 const { Botkit } = require('botkit');
 const WatsonConfig = require('./watsonConfig');
@@ -15,6 +17,10 @@ const botkit = new Botkit({
 botkit.webserver.use((request, response) => {
   console.log(request);
 });
+
+botkit.loadModule(__dirname + '/../modules/BotkitSocketModule');
+botkit.usePlugin(new SessionManager());
+botkit.usePlugin(new LogManager());
 
 const watsonMiddleware = new WatsonMiddleware({
   iam_apikey: process.env.ASSISTANT_IAM_APIKEY,
