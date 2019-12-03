@@ -8,7 +8,7 @@ module.exports = function (botkit) {
 
         message.watsonData.output = message.welcome_message ? message.watsonData.output : '';
 
-        await bot.reply(message, { 'session_id': uniqueSessionID });
+        await bot.reply(message, {'type' : 'session', 'session_id': uniqueSessionID });
         return await bot.reply(message, message.watsonData.output);
     });
 
@@ -21,4 +21,4 @@ module.exports = function (botkit) {
 
         botkit.plugins.log.verifyConnection(message.user, message.session);
     });
-}
+};

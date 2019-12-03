@@ -1,25 +1,20 @@
-const uuid = require('uuid/v1');
-
 let Config = require('../../config');
 let botkit = Config.BOTKIT_CONFIG.botkit;
 let watsonMiddleware = Config.BOTKIT_CONFIG.watsonMiddleware;
 let URL = require('url').URL;
 
 watsonMiddleware.before = (message, payload) => {
-    var customerID = uuid();
-    if (typeof message.user !== 'undefined') {
-        customerID = message.user;
-    }
-    //some actions here
-    payload = { ...payload, headers: { 'X-Watson-Metadata': 'customer_id=' + customerID } };
+  if (message.welcome_message) {
+      delete payload.context;
+  }
 
-    return payload;
+  return payload;
 }
 
 botkit.hears(
   ['.*'],
   'message',
-  async function(bot, message) {
+  async function (bot, message) {
     //console.log(">>>>>???????",message);
     if (message.watsonError) {
       await bot.reply(
@@ -32,9 +27,9 @@ botkit.hears(
       //console.log(watson_msg);
       // watson_msg.text = "abc";
       // watson_msg.generic[0].text = "asd";
-      if( watson_msg.generic) {
+      if (watson_msg.generic) {
         watson_msg.generic.forEach(gen => {
-          if (gen.response_type === 'image'){
+          if (gen.response_type === 'image') {
             //TODO:  check for youtube and maps
             let url = new URL(gen.source);
             let youtube_aliases = ['y2u.be',
@@ -47,13 +42,13 @@ botkit.hears(
 
             let google_maps_aliases = [''];
 
-            if (youtube_aliases.some(x =>{
+            if (youtube_aliases.some(x => {
               url.hostname.includes(x)
-            })){
+            })) {
               watson_msg.response_type = 'youtube_video'
-            }else if (google_maps_aliases.some(x =>{
+            } else if (google_maps_aliases.some(x => {
               url.hostname.includes(x)
-            })){
+            })) {
               watson_msg.response_type = 'google_maps'
             }
 
