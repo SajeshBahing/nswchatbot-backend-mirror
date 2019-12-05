@@ -9,7 +9,7 @@ watsonMiddleware.before = (message, payload) => {
   if (message.welcome_message) {
       delete payload.context;
   }
-
+  
   return payload;
 }
 
