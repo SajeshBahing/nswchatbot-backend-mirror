@@ -18,7 +18,7 @@ botkit.webserver.use((request, response) => {
   console.log(request);
 });
 
-botkit.loadModules(__dirname + '/../modules');
+botkit.loadModule(__dirname + '/../modules/BotkitMessageModule');
 botkit.usePlugin(new SessionManager());
 botkit.usePlugin(new LogManager());
 
