@@ -7,10 +7,11 @@ module.exports = function (botkit) {
             botkit.plugins.manager.session(message.user).set('location', message.location);
 
             botkit.plugins.log.write(uniqueSessionID, message.user, ['location'], message.location);
-        } else {
-            await bot.reply(message, {'type': 'location', 'text' : 'Please provide us your address'});
-            return;
         }
+        //  else {
+        //     await bot.reply(message, {'type': 'location', 'text' : 'Please provide us your address'});
+        //     return;
+        // }
 
         botkit.plugins.log.verifyConnection(message.user, uniqueSessionID);
 
