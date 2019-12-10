@@ -7,17 +7,16 @@ const mapsClient = googleMaps.createClient({
   promise:Promise
 });
 
-mapsClient.distanceMatrix({
-  origins: 'melbourne',
-  destinations: 'sydney',
-  mode: 'driving',
-},(err,response) =>{
-    if (err){
-      console.log(err);
-    }else{
-      console.log(JSON.stringify(response,0,2));
-    }
-});
-
+// mapsClient.distanceMatrix({
+//   origins: 'melbourne',
+//   destinations: 'sydney',
+//   mode: 'driving',
+// },(err,response) =>{
+//     if (err){
+//       console.log(err);
+//     }else{
+//       console.log(JSON.stringify(response,0,2));
+//     }
+// });
 
 module.exports = {mapsClient:mapsClient};

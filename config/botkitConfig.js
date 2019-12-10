@@ -19,7 +19,7 @@ botkit.webserver.use((request, response) => {
 });
 
 botkit.loadModule(__dirname + '/../modules/BotkitMessageModule');
-botkit.usePlugin(new SessionManager());
+botkit.usePlugin(new SessionManager()); 
 botkit.usePlugin(new LogManager());
 
 const watsonMiddleware = new WatsonMiddleware({

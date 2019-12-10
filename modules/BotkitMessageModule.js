@@ -8,12 +8,6 @@ module.exports = function (botkit) {
 
             botkit.plugins.log.write(uniqueSessionID, message.user, ['location'], message.location);
         }
-        else {
-            await bot.reply(message, {'type': 'location', 'text' : 'Please provide us your address'});
-            botkit.plugins.log.verifyConnection(message.user, uniqueSessionID);
-
-            return
-        }
 
         botkit.plugins.log.verifyConnection(message.user, uniqueSessionID);
 
@@ -36,26 +30,5 @@ module.exports = function (botkit) {
         }
 
         botkit.plugins.log.verifyConnection(message.user, message.session);
-    });
-
-    botkit.on("location", async (bot, message) => {
-        if (typeof message.location !== 'undefined' && message.location != '') {
-            botkit.plugins.manager.session(message.user).set('location', message.location);
-
-            botkit.plugins.log.write(message.session, message.user, ['location'], message.location);
-
-            botkit.trigger('location_received', [bot, message]);
-
-            return await bot.reply(message, {
-                type: 'message',
-                text: 'Thank you for sharing your address.',
-                generic : [
-                    {
-                        response_type: 'text',
-                        text: "Thank you for sharing your address."
-                    }                         
-                ]
-            });
-        }
     });
 };

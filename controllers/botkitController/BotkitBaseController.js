@@ -4,58 +4,97 @@ let watsonMiddleware = Config.BOTKIT_CONFIG.watsonMiddleware;
 let URL = require('url').URL;
 
 require('./BotkitLogController');
+import { calculateDistances } from '../mapsController/DistanceMatrixController';
 
-watsonMiddleware.before = (message, payload) => {
-  if (message.welcome_message) {
-      delete payload.context;
-  }
-  
-  return payload;
+watsonMiddleware.before = async (message, payload) => {
+    if (message.welcome_message) {
+        delete payload.context;
+    }
+
+    return payload;
+}
+
+botkit.middleware.receive.use(async (bot, message, next) => {
+    if (typeof message.welcome_message === 'undefined') {
+        let context = await watsonMiddleware.readContext(message.user);
+        if(typeof context.location === 'undefined' && typeof message.location !== 'undefined') {
+            context.location = message.location;
+
+            await watsonMiddleware.updateContext(message.user, context);
+        }
+    }
+
+    next();
+});
+
+async function iterateMessage(array, callback) {
+    for (let index = 0; index < array.length; index++) {
+        await callback(array[index], index, array);
+    }
 }
 
 botkit.hears(
-  ['.*'],
-  'message',
-  async function (bot, message) {
-    //console.log(">>>>>???????",message);
-    if (message.watsonError) {
-      await bot.reply(
-        message,
-        "I'm sorry, but for technical reasons I can't respond to your message"
-      );
-    } else {
-      var watson_msg = message.watsonData.output;
-      
-      if (watson_msg.generic) {
-        watson_msg.generic.forEach(gen => {
-          if (gen.response_type === 'image') {
-            //TODO:  check for youtube and maps
-            let url = new URL(gen.source);
-            let youtube_aliases = ['y2u.be',
-              'youtu.be',
-              'm.youtu.be',
-              'm.youtube.com',
-              'youtube.com',
-              'www.youtube.com'
-            ];
+    ['.*'],
+    'message',
+    async function (bot, message) {
+        if (message.watsonError) {
+            await bot.reply(
+                message,
+                "I'm sorry, but for technical reasons I can't respond to your message"
+            );
+        } else {
+            var watson_msg = message.watsonData.output;
+            if (watson_msg.generic) {
+                await iterateMessage(watson_msg.generic, async (gen, index) => {
+                    if (gen.response_type === 'image') {
+                        //TODO:  check for youtube and maps
+                        let url = new URL(gen.source);
+                        let youtube_aliases = ['y2u.be',
+                            'youtu.be',
+                            'm.youtu.be',
+                            'm.youtube.com',
+                            'youtube.com',
+                            'www.youtube.com'
+                        ];
 
-            let google_maps_aliases = [''];
+                        let google_maps_aliases = [''];
 
-            if (youtube_aliases.some(x => {
-              url.hostname.includes(x)
-            })) {
-              watson_msg.response_type = 'youtube_video'
-            } else if (google_maps_aliases.some(x => {
-              url.hostname.includes(x)
-            })) {
-              watson_msg.response_type = 'google_maps'
+                        if (youtube_aliases.some(x => {
+                            url.hostname.includes(x)
+                        })) {
+                            watson_msg.response_type = 'youtube_video'
+                        } else if (google_maps_aliases.some(x => {
+                            url.hostname.includes(x)
+                        })) {
+                            watson_msg.response_type = 'google_maps'
+                        }
+
+                    } else if (gen.response_type === 'option' && gen.title === 'counselor_map') {
+                        let origin = botkit.plugins.manager.session(message.user).get('location');
+                        if (origin === '') {
+                            const context = await watsonMiddleware.readContext(message.user);
+                            if (typeof context.location !== 'undefined') {
+                                origin = context.location;
+                                botkit.plugins.manager.session(message.user).set('location', origin);
+                            }
+                        }
+                        
+                        let data = await calculateDistances(origin, gen.options);
+                            
+                        if (typeof data === 'object') {
+                            watson_msg.generic[0].title = 'Some of the counselors near you';
+                            watson_msg.generic[0].options = data.slice(0, 3);
+                            watson_msg.generic[0].response_type = 'counselor_map';
+                        } else {
+                            watson_msg.generic[0].title = 'Some error occured, please try again later';
+                            watson_msg.generic[0].options = [];
+                        }
+
+                    }
+                });
             }
-
-          }
-        });
-      }
-
-      await bot.reply(message, watson_msg);
-    }
-  },
+            
+            await bot.reply(message, watson_msg);
+        }
+    },
 );
