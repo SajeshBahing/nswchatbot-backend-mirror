@@ -6,7 +6,7 @@ module.exports = function (botkit) {
         if (typeof message.location !== 'undefined' && message.location != '') {
             botkit.plugins.manager.session(message.user).set('location', message.location);
 
-            botkit.plugins.log.write(uniqueSessionID, message.user, ['location'], message.location);
+            botkit.plugins.log.write(message.user, 'location', message.location);
         }
 
         botkit.plugins.log.verifyConnection(message.user, uniqueSessionID);
@@ -26,7 +26,7 @@ module.exports = function (botkit) {
         if (typeof message.location !== 'undefined' && message.location != '') {
             botkit.plugins.manager.session(message.user).set('location', message.location);
 
-            botkit.plugins.log.write(message.session, message.user, ['location'], message.location);
+            botkit.plugins.log.write(message.user, 'location', message.location);
         }
 
         botkit.plugins.log.verifyConnection(message.user, message.session);

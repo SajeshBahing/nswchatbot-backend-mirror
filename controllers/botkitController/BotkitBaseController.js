@@ -4,7 +4,7 @@ let watsonMiddleware = Config.BOTKIT_CONFIG.watsonMiddleware;
 let URL = require('url').URL;
 
 require('./BotkitLogController');
-import { calculateDistances } from '../mapsController/DistanceMatrixController';
+import { calculateDistances, getLocationData, getNearestCounselors } from '../mapsController/CounselorController';
 
 watsonMiddleware.before = async (message, payload) => {
     if (message.welcome_message) {
@@ -33,6 +33,14 @@ async function iterateMessage(array, callback) {
     }
 }
 
+async function userDetails(user, options) {
+    options.forEach((detail) => {
+        if(detail.value.input.text) {
+            botkit.plugins.log.write(user, detail.label, detail.value.input.text);
+        }
+    });
+}
+
 botkit.hears(
     ['.*'],
     'message',
@@ -44,6 +52,7 @@ botkit.hears(
             );
         } else {
             var watson_msg = message.watsonData.output;
+            
             if (watson_msg.generic) {
                 await iterateMessage(watson_msg.generic, async (gen, index) => {
                     if (gen.response_type === 'image') {
@@ -78,18 +87,23 @@ botkit.hears(
                                 botkit.plugins.manager.session(message.user).set('location', origin);
                             }
                         }
-                        
-                        let data = await calculateDistances(origin, gen.options);
+                        let spliced = watson_msg.generic.splice(1, 1);
+                        let data = await calculateDistances(origin);
                             
                         if (typeof data === 'object') {
-                            watson_msg.generic[0].title = 'Some of the counselors near you';
-                            watson_msg.generic[0].options = data.slice(0, 3);
+                            watson_msg.generic[0].title = spliced[0].text;
+                            watson_msg.generic[0].options = data;
                             watson_msg.generic[0].response_type = 'counselor_map';
                         } else {
                             watson_msg.generic[0].title = 'Some error occured, please try again later';
                             watson_msg.generic[0].options = [];
                         }
 
+                    } else if (gen.response_type === 'option' && gen.title === 'user_details_prompt') {
+
+                        userDetails(message.user, gen.options);
+
+                        watson_msg.generic.splice(1, 1);
                     }
                 });
             }
