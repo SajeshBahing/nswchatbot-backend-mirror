@@ -48,12 +48,7 @@ export async function getLocationData(location)
     return response;
 }
 
-export async function calculateDistances(origin) { 
-    if (typeof origin.latitude !== 'undefined')
-        origin = [origin.longitude, origin.latitude];
-    else //use geocode to get longitude and latitude
-        origin = await getLocationData(origin);
-    
+export async function calculateDistances(origin) {     
     console.log("Using location " + JSON.stringify(origin));
     
     let nearestCouselor = await getNearestCounselors(origin, 3);

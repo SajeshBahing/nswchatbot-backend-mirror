@@ -57,6 +57,7 @@
     "session.socket.io": "^0.2.1",
     "socket.io": "2.2.0",
     "underscore": "1.9.1",
+    "url-to-screenshot": "^3.0.0",
     "validator": "11.0.0"
   },
   "author": "Navit Choudhary",

@@ -2,16 +2,25 @@ let Config = require('../../config');
 let botkit = Config.BOTKIT_CONFIG.botkit;
 let watsonMiddleware = Config.BOTKIT_CONFIG.watsonMiddleware;
 let URL = require('url').URL;
+import { takeScreenshot } from '../../lib/ScreenshotManager';
 
 require('./BotkitLogController');
-import { calculateDistances, getLocationData, getNearestCounselors } from '../mapsController/CounselorController';
+import { calculateDistances, getLocationData } from '../mapsController/CounselorController';
 
 watsonMiddleware.before = async (message, payload) => {
     if (message.welcome_message) {
         delete payload.context;
     }
-
+    
     return payload;
+}
+
+watsonMiddleware.after = async(message, response) => {
+    if (message.type === 'welcome') {
+        botkit.trigger('before_session_start', message.user, response.context);
+    }
+
+    return response;
 }
 
 botkit.middleware.receive.use(async (bot, message, next) => {
@@ -41,6 +50,24 @@ async function userDetails(user, options) {
     });
 }
 
+botkit.on('before_session_start', async (user_id, context) => {
+    const labels = ['username', 'email', 'phone', 'location'];
+    
+    new Promise(async (resolve)=> {
+        let context_ = {};
+        for (let i = 0; i < labels.length; i++) {
+            let value = await botkit.plugins.log.get(user_id, labels[i]);
+            context_[labels[i]] = value;
+        }
+
+        resolve(context_);
+    }).then (async (userDetails) => {
+        context = {...context, ...userDetails};
+        
+        await watsonMiddleware.updateContext(user_id, context);
+    });
+});
+
 botkit.hears(
     ['.*'],
     'message',
@@ -55,48 +82,48 @@ botkit.hears(
             
             if (watson_msg.generic) {
                 await iterateMessage(watson_msg.generic, async (gen, index) => {
-                    if (gen.response_type === 'image') {
-                        //TODO:  check for youtube and maps
-                        let url = new URL(gen.source);
-                        let youtube_aliases = ['y2u.be',
-                            'youtu.be',
-                            'm.youtu.be',
-                            'm.youtube.com',
-                            'youtube.com',
-                            'www.youtube.com'
-                        ];
+                    let common_options = ['video', 'pdf', 'link'];
 
-                        let google_maps_aliases = [''];
+                    if(gen.response_type === 'option' && common_options.includes(gen.title)) {
+                        watson_msg.generic[index].text = gen.options[0].label;
+                        watson_msg.generic[index].source = gen.options[0].value.input.text;
+                        watson_msg.generic[index].response_type = gen.title;
 
-                        if (youtube_aliases.some(x => {
-                            url.hostname.includes(x)
-                        })) {
-                            watson_msg.response_type = 'youtube_video'
-                        } else if (google_maps_aliases.some(x => {
-                            url.hostname.includes(x)
-                        })) {
-                            watson_msg.response_type = 'google_maps'
+                        if (gen.title === 'link') {
+                            //var link = await takeScreenshot(watson_msg.generic[index].source);
                         }
 
+                        delete watson_msg.generic[index].options;
                     } else if (gen.response_type === 'option' && gen.title === 'counselor_map') {
                         let origin = botkit.plugins.manager.session(message.user).get('location');
                         if (origin === '') {
                             const context = await watsonMiddleware.readContext(message.user);
                             if (typeof context.location !== 'undefined') {
                                 origin = context.location;
-                                botkit.plugins.manager.session(message.user).set('location', origin);
                             }
                         }
-                        let spliced = watson_msg.generic.splice(1, 1);
+                        //let spliced = watson_msg.generic.splice(index, 1);
+
+                        if (typeof origin.latitude !== 'undefined')
+                            origin = [origin.longitude, origin.latitude];
+                        else { //use geocode to get longitude and latitude
+                            origin = await getLocationData(origin);
+                            //storing user's latitude and longitude instead of plain address
+                            
+                            let temp_origin = {longitude: origin[0], latitude: origin[1]};
+                            botkit.plugins.manager.session(message.user).set('location', temp_origin); // storing in session
+                            botkit.plugins.log.write(message.user, 'location', temp_origin); // storing in db
+                        }
+
                         let data = await calculateDistances(origin);
                             
                         if (typeof data === 'object') {
-                            watson_msg.generic[0].title = spliced[0].text;
-                            watson_msg.generic[0].options = data;
-                            watson_msg.generic[0].response_type = 'counselor_map';
+                            watson_msg.generic[index].title = watson_msg.generic[index].description;
+                            watson_msg.generic[index].options = data;
+                            watson_msg.generic[index].response_type = 'counselor_map';
                         } else {
-                            watson_msg.generic[0].title = 'Some error occured, please try again later';
-                            watson_msg.generic[0].options = [];
+                            watson_msg.generic[index].title = 'Some error occured, please try again later';
+                            watson_msg.generic[index].options = [];
                         }
 
                     } else if (gen.response_type === 'option' && gen.title === 'user_details_prompt') {
