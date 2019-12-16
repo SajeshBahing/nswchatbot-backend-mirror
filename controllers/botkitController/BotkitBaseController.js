@@ -2,25 +2,34 @@ let Config = require('../../config');
 let botkit = Config.BOTKIT_CONFIG.botkit;
 let watsonMiddleware = Config.BOTKIT_CONFIG.watsonMiddleware;
 let URL = require('url').URL;
+import { calculateDistances, getLocationData } from '../mapsController/CounselorController';
 import { takeScreenshot } from '../../lib/ScreenshotManager';
 
 require('./BotkitLogController');
-import { calculateDistances, getLocationData } from '../mapsController/CounselorController';
+
+async function userMeta(user_id) {
+    const labels = ['username', 'email', 'phone', 'location'];
+    
+    return new Promise(async (resolve)=> {
+        let context_ = {};
+        for (let i = 0; i < labels.length; i++) {
+            let value = await botkit.plugins.log.get(user_id, labels[i]);
+            if(value !== '')
+                context_[labels[i]] = value;
+        }
+
+        resolve(context_);
+    });
+}
 
 watsonMiddleware.before = async (message, payload) => {
     if (message.welcome_message) {
         delete payload.context;
+
+        payload.context = await userMeta(message.user);
     }
     
     return payload;
-}
-
-watsonMiddleware.after = async(message, response) => {
-    if (message.type === 'welcome') {
-        botkit.trigger('before_session_start', message.user, response.context);
-    }
-
-    return response;
 }
 
 botkit.middleware.receive.use(async (bot, message, next) => {
@@ -50,24 +59,6 @@ async function userDetails(user, options) {
     });
 }
 
-botkit.on('before_session_start', async (user_id, context) => {
-    const labels = ['username', 'email', 'phone', 'location'];
-    
-    new Promise(async (resolve)=> {
-        let context_ = {};
-        for (let i = 0; i < labels.length; i++) {
-            let value = await botkit.plugins.log.get(user_id, labels[i]);
-            context_[labels[i]] = value;
-        }
-
-        resolve(context_);
-    }).then (async (userDetails) => {
-        context = {...context, ...userDetails};
-        
-        await watsonMiddleware.updateContext(user_id, context);
-    });
-});
-
 botkit.hears(
     ['.*'],
     'message',
@@ -82,18 +73,13 @@ botkit.hears(
             
             if (watson_msg.generic) {
                 await iterateMessage(watson_msg.generic, async (gen, index) => {
-                    let common_options = ['video', 'pdf', 'link'];
+                    let common_options = ['video', 'pdf', 'link', 'social_media'];
 
                     if(gen.response_type === 'option' && common_options.includes(gen.title)) {
-                        watson_msg.generic[index].text = gen.options[0].label;
-                        watson_msg.generic[index].source = gen.options[0].value.input.text;
-                        watson_msg.generic[index].response_type = gen.title;
+                        gen.options.forEach(async (option, ind) => {
+                            watson_msg.generic[index].response_type = gen.title;
+                        });
 
-                        if (gen.title === 'link') {
-                            //var link = await takeScreenshot(watson_msg.generic[index].source);
-                        }
-
-                        delete watson_msg.generic[index].options;
                     } else if (gen.response_type === 'option' && gen.title === 'counselor_map') {
                         let origin = botkit.plugins.manager.session(message.user).get('location');
                         if (origin === '') {
@@ -102,8 +88,8 @@ botkit.hears(
                                 origin = context.location;
                             }
                         }
+                        
                         //let spliced = watson_msg.generic.splice(index, 1);
-
                         if (typeof origin.latitude !== 'undefined')
                             origin = [origin.longitude, origin.latitude];
                         else { //use geocode to get longitude and latitude
