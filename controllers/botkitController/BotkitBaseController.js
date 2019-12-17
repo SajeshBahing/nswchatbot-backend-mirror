@@ -9,12 +9,12 @@ require('./BotkitLogController');
 
 async function userMeta(user_id) {
     const labels = ['username', 'email', 'phone', 'location'];
-    
-    return new Promise(async (resolve)=> {
+
+    return new Promise(async (resolve) => {
         let context_ = {};
         for (let i = 0; i < labels.length; i++) {
             let value = await botkit.plugins.log.get(user_id, labels[i]);
-            if(value !== '')
+            if (value !== '')
                 context_[labels[i]] = value;
         }
 
@@ -28,14 +28,14 @@ watsonMiddleware.before = async (message, payload) => {
 
         payload.context = await userMeta(message.user);
     }
-    
+
     return payload;
 }
 
 botkit.middleware.receive.use(async (bot, message, next) => {
     if (typeof message.welcome_message === 'undefined') {
         let context = await watsonMiddleware.readContext(message.user);
-        if(typeof context.location === 'undefined' && typeof message.location !== 'undefined') {
+        if (typeof context.location === 'undefined' && typeof message.location !== 'undefined') {
             context.location = message.location;
 
             await watsonMiddleware.updateContext(message.user, context);
@@ -53,7 +53,7 @@ async function iterateMessage(array, callback) {
 
 async function userDetails(user, options) {
     options.forEach((detail) => {
-        if(detail.value.input.text) {
+        if (detail.value.input.text) {
             botkit.plugins.log.write(user, detail.label, detail.value.input.text);
         }
     });
@@ -70,12 +70,16 @@ botkit.hears(
             );
         } else {
             var watson_msg = message.watsonData.output;
-            
+
             if (watson_msg.generic) {
                 await iterateMessage(watson_msg.generic, async (gen, index) => {
                     let common_options = ['video', 'pdf', 'link', 'social_media'];
 
-                    if(gen.response_type === 'option' && common_options.includes(gen.title)) {
+                    if (gen.response_type === 'text' && gen.text === '') {
+                        watson_msg.generic.splice(index, 1);
+                    }
+
+                    if (gen.response_type === 'option' && common_options.includes(gen.title)) {
                         gen.options.forEach(async (option, ind) => {
                             watson_msg.generic[index].response_type = gen.title;
                         });
@@ -88,21 +92,21 @@ botkit.hears(
                                 origin = context.location;
                             }
                         }
-                        
+
                         //let spliced = watson_msg.generic.splice(index, 1);
                         if (typeof origin.latitude !== 'undefined')
                             origin = [origin.longitude, origin.latitude];
                         else { //use geocode to get longitude and latitude
                             origin = await getLocationData(origin);
                             //storing user's latitude and longitude instead of plain address
-                            
-                            let temp_origin = {longitude: origin[0], latitude: origin[1]};
+
+                            let temp_origin = { longitude: origin[0], latitude: origin[1] };
                             botkit.plugins.manager.session(message.user).set('location', temp_origin); // storing in session
                             botkit.plugins.log.write(message.user, 'location', temp_origin); // storing in db
                         }
 
                         let data = await calculateDistances(origin);
-                            
+
                         if (typeof data === 'object') {
                             watson_msg.generic[index].title = watson_msg.generic[index].description;
                             watson_msg.generic[index].options = data;
@@ -116,11 +120,11 @@ botkit.hears(
 
                         userDetails(message.user, gen.options);
 
-                        watson_msg.generic.splice(1, 1);
+                        watson_msg.generic.splice(index, 1);
                     }
                 });
             }
-            
+
             await bot.reply(message, watson_msg);
         }
     },
