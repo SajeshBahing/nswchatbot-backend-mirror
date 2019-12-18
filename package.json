@@ -40,6 +40,7 @@
     "handlebars": "^4.5.3",
     "hapi": "18.1.0",
     "hapi-auth-bearer-token": "6.2.1",
+    "hapi-routing": "^2.0.0",
     "hapi-swagger": "10.0.0",
     "here-maps-node": "0.0.2",
     "ibm-watson": "^4.4.0",

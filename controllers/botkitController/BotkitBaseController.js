@@ -2,8 +2,9 @@ let Config = require('../../config');
 let botkit = Config.BOTKIT_CONFIG.botkit;
 let watsonMiddleware = Config.BOTKIT_CONFIG.watsonMiddleware;
 let URL = require('url').URL;
-import { calculateDistances, getLocationData } from '../mapsController/CounselorController';
-import { takeScreenshot } from '../../lib/ScreenshotManager';
+
+// import { takeScreenshot } from '../../lib/ScreenshotManager';
+import eventHandler from './BotkitOptionsCotroller';
 
 require('./BotkitLogController');
 
@@ -83,38 +84,9 @@ botkit.hears(
                         gen.options.forEach(async (option, ind) => {
                             watson_msg.generic[index].response_type = gen.title;
                         });
-
                     } else if (gen.response_type === 'option' && gen.title === 'counselor_map') {
-                        let origin = botkit.plugins.manager.session(message.user).get('location');
-                        if (origin === '') {
-                            const context = await watsonMiddleware.readContext(message.user);
-                            if (typeof context.location !== 'undefined') {
-                                origin = context.location;
-                            }
-                        }
-
-                        //let spliced = watson_msg.generic.splice(index, 1);
-                        if (typeof origin.latitude !== 'undefined')
-                            origin = [origin.longitude, origin.latitude];
-                        else { //use geocode to get longitude and latitude
-                            origin = await getLocationData(origin);
-                            //storing user's latitude and longitude instead of plain address
-
-                            let temp_origin = { longitude: origin[0], latitude: origin[1] };
-                            botkit.plugins.manager.session(message.user).set('location', temp_origin); // storing in session
-                            botkit.plugins.log.write(message.user, 'location', temp_origin); // storing in db
-                        }
-
-                        let data = await calculateDistances(origin);
-
-                        if (typeof data === 'object') {
-                            watson_msg.generic[index].title = watson_msg.generic[index].description;
-                            watson_msg.generic[index].options = data;
-                            watson_msg.generic[index].response_type = 'counselor_map';
-                        } else {
-                            watson_msg.generic[index].title = 'Some error occured, please try again later';
-                            watson_msg.generic[index].options = [];
-                        }
+                        //triggering counselor map event
+                        watson_msg = await eventHandler.triggerSync('counselor_map', message, watson_msg, index);
 
                     } else if (gen.response_type === 'option' && gen.title === 'user_details_prompt') {
 

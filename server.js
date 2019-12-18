@@ -1,7 +1,6 @@
 /**
  * Created by Navit
  */
-
 "use strict";
 //External Dependencies
 var Hapi = require("hapi");

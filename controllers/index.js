@@ -17,11 +17,14 @@ import watsonEntityController from './watsonController/watsonEntityController';
 
 import watsonDialogController from './watsonController/watsonDialogController';
 
+import cousnselorAPIController from './counselorController/cousnselorAPIController';
+
 module.exports = {
-  DemoBaseController: demoController,
-  UserBaseController: userController,
-  AdminBaseController: adminController,
-  WatsonIntentController: watsonIntentController,
-  WatsonEntityController: watsonEntityController,
-  WatsonDialogController: watsonDialogController
+    DemoBaseController: demoController,
+    UserBaseController: userController,
+    AdminBaseController: adminController,
+    WatsonIntentController: watsonIntentController,
+    WatsonEntityController: watsonEntityController,
+    WatsonDialogController: watsonDialogController,
+    cousnselorAPIController: cousnselorAPIController
 };

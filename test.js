@@ -1,33 +1,30 @@
-const puppeteer = require('puppeteer');
-const fs = require('fs');
-const path = require('path');
+function events()
+{
+    this.events = {};
 
-function takeScreenshot(name, site) {
-    const file = path.join(__dirname, 'capture', name + '.jpg');
+    this.on = function (key, cb) {
+        this.events[key] = cb;
+    };
 
-    return new Promise(async (resolve, reject) => {
-        try {
-            const browser = await puppeteer.launch();
-            const page = await browser.newPage();
-            await page.setViewport({
-                width: 1024,
-                height: 700,
-                deviceScaleFactor: 1,
-            });
-
-            page.goto(site).then(async () => {
-                await browser.close();
-            }).catch((error) => { console.log(error) });
-            
-            setTimeout(async () => {
-                console.log("After 2 seconds");
-                await page.screenshot({ path: file, width: 1024, height: 700 });
-
-            }, 3000);
-        } catch (error) {
-            reject(error);
+    this.trigger = function () {
+        let parameters = Object.values(arguments);
+        if (parameters.length > 0) {
+            if (typeof this.events[parameters[0]]) {
+                let event = parameters.splice(0, 1);
+                this.events[event](...parameters);
+            } else {
+                throw ('noe such event registered');
+            }
+        } else {
+            throw ('No parameters provided');
         }
-    });
+    };
+
+    return this;
 }
 
-takeScreenshot('youtube', 'https://counsellorsam1.wordpress.com/')
+event = new events();
+event.on('test', (a, b) => {console.log( a+ b ) });
+
+event.trigger('test', 1, 3);
+
