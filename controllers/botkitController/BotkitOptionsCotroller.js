@@ -3,6 +3,7 @@ let botkit = Config.BOTKIT_CONFIG.botkit;
 let watsonMiddleware = Config.BOTKIT_CONFIG.watsonMiddleware;
 
 import { calculateDistances, getLocationData } from '../mapsController/CounselorController';
+import { add as addAppointment } from '../../services/AppointmentService';
 
 function Events() {
     this.events = {};
@@ -50,6 +51,27 @@ function Events() {
 }
 
 let eventHandler = new Events();
+
+eventHandler.on('appointment_fixed', async (bot, message) => {
+
+    let context = await watsonMiddleware.readContext(message.user);
+    bot.reply(message, { sender_action: 'typing_on' })
+    //validate appointment with counselors
+    //must be sync fuction
+
+    let date_ = new Date(context.appointment_date+" "+context.appointment_time);
+
+    let appointment = {
+        user_id : message.user,
+        username : context.username,
+        phone: context.phone,
+        email: context.email,
+        counselor: context.appointment_counselor,
+        date: date_.toISOString()
+    };
+
+    addAppointment(appointment);
+});
 
 eventHandler.on('counselor_map', async function (message, watson_msg, index) {
     let origin = botkit.plugins.manager.session(message.user).get('location');

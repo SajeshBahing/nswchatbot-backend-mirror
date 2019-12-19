@@ -21,7 +21,7 @@ export async function getLocationData(location)
     let response;
     if (typeof location === 'undefined'){// get data from db and then location
         response = new Promise((resolve, reject) => {
-            CounselorService.findAll(null, null, {}, (err, data) => {
+            CounselorService.findAll({}, null, {}, (err, data) => {
                 if (err)
                     console.error(err);
                 else {
@@ -61,6 +61,7 @@ export async function calculateDistances(origin) {
                 value: element.address,
                 phone: element.phone,
                 service_area: element.service_area,
+                id: element._id,
                 distance: (parseFloat(element.dist.distance) / 1000).toFixed(2)
             }
         );

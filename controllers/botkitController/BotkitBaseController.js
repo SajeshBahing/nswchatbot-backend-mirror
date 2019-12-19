@@ -30,6 +30,14 @@ watsonMiddleware.before = async (message, payload) => {
         payload.context = await userMeta(message.user);
     }
 
+    if (typeof message.counselor !== 'undefined') {
+        try {
+            payload.context = { ...payload.context, ...{appointment_counselor : message.counselor} };
+        } catch (error) {
+            consolee.log(error);
+        }
+    }
+
     return payload;
 }
 
@@ -91,6 +99,11 @@ botkit.hears(
                     } else if (gen.response_type === 'option' && gen.title === 'user_details_prompt') {
 
                         userDetails(message.user, gen.options);
+
+                        watson_msg.generic.splice(index, 1);
+                    } else if (gen.response_type === 'option' && gen.title === 'appointment_details') {
+
+                        eventHandler.trigger('appointment_fixed', bot, message);
 
                         watson_msg.generic.splice(index, 1);
                     }
