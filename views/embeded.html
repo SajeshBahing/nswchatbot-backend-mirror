@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"> -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="HandheldFriendly" content="true">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="apple-mobile-web-app-capable" content="true">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Title</title>
+</head>
+<body>
+<div id="embedded_messenger">
+    <div id="message_header" class="inactive" onclick="Botkit.toggle()">
+        <img id="chat_icon" alt="chat" src="resources/images/chat_white_72x72.png"/>
+    </div>
+    <iframe  id="botkit_client" src="/chatwindow"></iframe>
+</div>
+<script src="resources/js/embed.js"></script>
+<script>
+    var options = {};
+    Botkit.boot(options);
+</script>
+<link rel="stylesheet" href="resources/css/embed.css" />
+</body>
+</html>

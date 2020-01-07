@@ -58,6 +58,34 @@ const init = async () => {
         }
     });
 
+    server.route({
+        method: "GET",
+        path: "/chatwindow",
+        handler: function (req, res) {
+            return res.view("chatwindow");
+        }
+    });
+
+    server.route({
+        path: "/resources/{file*}",
+        method: "GET",
+        handler: {
+            directory: {
+                path: "./views/resources",
+                listing: false,
+                index: false
+            }
+        }
+    });
+
+    server.route({
+        method: "GET",
+        path: "/embeded",
+        handler: function (req, res) {
+            return res.view("embeded");
+        }
+    });
+
     server.route(Routes);
 
     SocketManager.connectSocket(server);

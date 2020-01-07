@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <title>Chat Window</title>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="resources/image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="resources/image/png" sizes="16x16" href="/favicon-16x16.png">
+
+    <link rel="stylesheet" href="resources/css/chatwindow.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://s3.amazonaws.com/icomoon.io/114779/Socicon/style.css?u8vidh">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.10/handlebars.min.js"></script>
+    <script src="https://cdn.rawgit.com/showdownjs/showdown/1.7.4/dist/showdown.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/showdown-youtube@1.2.1/dist/showdown-youtube.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.3.200/pdf.js"></script>
+</head>
+
+<body>
+    <div class="hoax-window">
+        <div class="chat-container" id="message_window">
+            <div class="chat-head">
+                <div class="chat-title">
+                    <image src="" id="bot_avatar" />
+                    <span>Lily</span>
+                    <label>- offline</label>
+                </div>
+                <a href="#" class="close-button" id="closeButton">
+                    <i class="material-icons">clear</i>
+                </a>
+                <div class="shadow"></div>
+            </div>
+
+            <div class="chat-body custom-scroll" id="message_main_container">
+
+                <div class="offline-status">
+                    <i class="material-icons">sentiment_very_dissatisfied</i>
+                    <div>Offline!</div>
+                </div>
+
+                <div id="message_list"></div>
+            </div>
+
+            <div class="chat-foot" id="chat-box-bottom">
+                <form id="messenger_reply_box" onsubmit="Botkit.send(Botkit.input.value, event)">
+                    <div class="column text-area">
+                        <textarea id="messenger_input" placeholder="Type here..."></textarea>
+                    </div>
+                    <div class="column">
+                        <button type="submit" id="submitButton" class="button-send">
+                            <i class="material-icons">send</i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function setCaretPosition(ctrl, pos) {
+            // Modern browsers
+            if (ctrl.setSelectionRange) {
+                ctrl.focus();
+                ctrl.setSelectionRange(pos, pos);
+
+                // IE8 and below
+            } else if (ctrl.createTextRange) {
+                var range = ctrl.createTextRange();
+                range.collapse(true);
+                range.moveEnd('character', pos);
+                range.moveStart('character', pos);
+                range.select();
+            }
+        }
+
+        (function () {
+            //self invoking function
+
+            document.querySelector("#messenger_input").addEventListener("keyup", function (e) {
+                if (this.value.trim() == "") {
+                    this.style.height = "43px";
+                }
+            });
+
+            document.querySelector("#messenger_input").addEventListener("keydown", function (e) {
+
+                if (this.value.trim() == "") {
+                    this.style.height = "43px";
+                }
+
+                if (
+                    (
+                        e.key == "Backspace"
+                        &&
+                        this.value.charAt(this.selectionStart - 1) == "\n"
+                    )
+                    ||
+                    (
+                        e.key == "Delete"
+                        &&
+                        this.value.charAt(this.selectionStart) == "\n"
+                    )
+                ) {
+                    var height = this.offsetHeight;
+                    if (height >= 43 + 15) {
+                        this.style.height = height - 15 + "px";
+                    }
+                }
+
+                if (e.key == "Enter") {
+                    e.preventDefault();
+
+                    document.querySelector("#submitButton").click();
+                }
+
+                if (e.ctrlKey && e.key == "Enter") {
+                    //updating text if necessary
+                    var allText = this.value,
+                        currentPos = this.selectionStart,
+                        beforeText = allText.substr(0, currentPos),
+                        afterText = allText.substr(this.selectionEnd);
+
+                    this.value = beforeText + '\n' + afterText;
+
+                    setCaretPosition(this, currentPos + 1);
+
+                    //setting textarea height
+                    var height = this.offsetHeight;
+                    this.style.height = height + 15 + "px";
+                }
+            });
+        })();
+    </script>
+    <script src="resources/js/client.js"></script>
+</body>
+
+</html>

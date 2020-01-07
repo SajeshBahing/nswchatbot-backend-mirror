@@ -55,7 +55,7 @@ let eventHandler = new Events();
 eventHandler.on('appointment_fixed', async (bot, message) => {
 
     let context = await watsonMiddleware.readContext(message.user);
-    bot.reply(message, { sender_action: 'typing_on' })
+    bot.reply(message, { sender_action: 'typing_on' });
     //validate appointment with counselors
     //must be sync fuction
 

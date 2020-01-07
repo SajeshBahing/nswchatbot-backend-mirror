@@ -1,15 +1,30 @@
 version: "3"
+networks:
+  chatbot: null
 services:
   backend:
     container_name: nswchatbot-backend
     build: .
     restart: always
-    command: bash -c "node -r @babel/register entry.js"
+    command: bash -c "nodemon -r @babel/register entry.js"
     ports:
       - "8051:3000"
       - "8052:8000"
-
-networks:
-  default:
-    external:
-      name: nswchatbot
+    depends_on:
+      - database
+    networks:
+      - chatbot
+  database:
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+      - MONGO_INITDB_USERNAME=admin
+      - MONGO_INITDB_PASSWORD=admin
+      - MONGO_INITDB_DATABASE=launchpad
+    volumes:
+      - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
+    ports:
+      - "27017:27017"
+    networks:
+      - chatbot
