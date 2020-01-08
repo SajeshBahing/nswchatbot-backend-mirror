@@ -87,7 +87,7 @@ function websitePreview(data) {
 
 let Botkit = {
     config: {
-        ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://10.140.68.64:8051',
+        ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://115.146.84.74:8051',
         reconnect_timeout: 5000,
         max_reconnect: 5,
         enable_history: false
