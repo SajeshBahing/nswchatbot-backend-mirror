@@ -12,3 +12,4 @@ COPY . /usr/src/app
 
 EXPOSE 3000 8000
 CMD [ "nodemon", "-r", "@babel/register", "entry.js" ]
+#some comments
