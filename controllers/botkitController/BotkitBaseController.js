@@ -103,9 +103,12 @@ botkit.hears(
                         watson_msg.generic.splice(index, 1);
                     } else if (gen.response_type === 'option' && gen.title === 'appointment_details') {
 
-                        eventHandler.trigger('appointment_fixed', bot, message);
-
+                        let response = await eventHandler.triggerSync('appointment_fixed', bot, message);
+                        
                         watson_msg.generic.splice(index, 1);
+
+                        if (!response)
+                            watson_msg.generic[0].text = 'Provided date and time is not available. Please select other date and time';
                     }
                 });
             }

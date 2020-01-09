@@ -4,6 +4,7 @@ let watsonMiddleware = Config.BOTKIT_CONFIG.watsonMiddleware;
 
 import { calculateDistances, getLocationData } from '../mapsController/CounselorController';
 import { add as addAppointment } from '../../services/AppointmentService';
+import { timeSheet } from '../counselorController/cousnselorAPIController';
 
 function Events() {
     this.events = {};
@@ -25,7 +26,7 @@ function Events() {
                 });
             }
             else {
-                throw ('noe such event registered');
+                throw ('No such event registered');
             }
         }
         else {
@@ -56,8 +57,6 @@ eventHandler.on('appointment_fixed', async (bot, message) => {
 
     let context = await watsonMiddleware.readContext(message.user);
     bot.reply(message, { sender_action: 'typing_on' });
-    //validate appointment with counselors
-    //must be sync fuction
 
     let date_ = new Date(context.appointment_date+" "+context.appointment_time);
 
@@ -70,7 +69,27 @@ eventHandler.on('appointment_fixed', async (bot, message) => {
         date: date_.toISOString()
     };
 
-    addAppointment(appointment);
+    let response = await timeSheet(context.appointment_date, context.appointment_time);
+    
+    if (response) {
+        addAppointment(appointment);
+    } else {
+        delete context.appointment_date;
+        delete context.appointment_time;
+
+        try {
+            const newMessage = { ...message };
+            newMessage.text = 'see a counselor';
+
+            await watsonMiddleware.updateContext(message.user, context);
+            await watsonMiddleware.sendToWatson(bot, newMessage, context);
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    return response;
 });
 
 eventHandler.on('counselor_map', async function (message, watson_msg, index) {

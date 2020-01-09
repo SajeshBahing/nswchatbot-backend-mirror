@@ -87,7 +87,8 @@ function websitePreview(data) {
 
 let Botkit = {
     config: {
-        ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://115.146.84.74:8051',
+        //ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://115.146.84.74:8051',
+        ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://10.140.68.64:3000',
         reconnect_timeout: 5000,
         max_reconnect: 5,
         enable_history: false
@@ -467,7 +468,7 @@ let Botkit = {
         if (typeof message.sender_action !== 'undefined' && message.sender_action === 'typing_on') {
             // that.next_line.innerHTML = 'Typing...';
             // add code to show typing status message
-            console.log('asd');
+            
             return;
         }
 
