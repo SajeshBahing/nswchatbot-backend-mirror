@@ -677,8 +677,8 @@ let Botkit = {
         that.deleteCookie('bootkit_session_id');
 
         that.images = {
-            'bot': 'avatar.png',
-            'user': 'avatar_.png'
+            'bot': 'avatar.svg',
+            'user': 'avatar_.svg'
         };
 
         document.querySelector('#bot_avatar').setAttribute('src', 'resources/images/' + that.images.bot);
