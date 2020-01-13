@@ -41,7 +41,7 @@ var Botkit = {
         let message_header = document.getElementById('message_header');
         let botkit_client = document.getElementById('botkit_client');
         message_header.className = 'inactive';
-        message_header.innerHTML = '<img id="chat_icon" alt="chat" src="images/chat_white_72x72.png"/>';
+        message_header.innerHTML = '<img id="chat_icon" alt="chat" src="resources/images/chat_white_72x72.png"/>';
         botkit_client.style.display = 'none';
         this.setCookie('botkit_messenger_active', this.active);
     },

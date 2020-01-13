@@ -92,6 +92,11 @@ botkit.hears(
                         gen.options.forEach(async (option, ind) => {
                             watson_msg.generic[index].response_type = gen.title;
                         });
+                    } else if (gen.response_type === 'option' && gen.title === 'video_playlist') {
+                        gen.options.forEach(async (option, ind) => {
+                            watson_msg.generic[index].title = option.label;
+                            watson_msg.generic[index].response_type = 'video_playlist';
+                        });
                     } else if (gen.response_type === 'option' && gen.title === 'counselor_map') {
                         //triggering counselor map event
                         watson_msg = await eventHandler.triggerSync('counselor_map', message, watson_msg, index);

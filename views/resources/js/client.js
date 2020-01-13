@@ -46,6 +46,24 @@ let parseYoutubeVideo = (msg) => {
     return converter.makeHtml('![youtube video](' + vid_url + ')');
 };
 
+//https://www.youtube.com/embed/videoseries?list=PLlxOaF8FyB0qsZ6DB2k6KWIt4CV-dtXgF
+let parseYoutubePlaylist = (msg) => {
+    let response = '';
+    msg.options.forEach((element) => {
+        response += '<iframe id="Playlist" width="100%" src="' + element.value.input.text + '&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+    });
+
+    // new YT.Player('Playlist', {
+    //     events : {
+    //         'onStateChanged': function(playerStatus) {
+    //             console.log(playerStatus);
+    //         }
+    //     }
+    // });
+
+    return response;
+};
+
 let parsePdf = (gen) => {
     var container = document.createElement('div');
     container.innerHTML = '<p>' + gen.label + '</p>';
@@ -87,8 +105,8 @@ function websitePreview(data) {
 
 let Botkit = {
     config: {
-        //ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://115.146.84.74:8051',
-        ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://10.140.68.64:3000',
+        ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://115.146.84.74:8051',
+        //ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://10.140.68.64:3000',
         reconnect_timeout: 5000,
         max_reconnect: 5,
         enable_history: false
@@ -521,6 +539,12 @@ let Botkit = {
                                     message.html += parseYoutubeVideo(element);
                                 });
                                 break;
+                            case 'video_playlist':
+                                message.type = 'youtube';
+                                message.html = gen.title;
+
+                                message.html += parseYoutubePlaylist(gen);
+                                break;
                             case 'pdf':
                                 message.type = 'pdf';
                                 useTemplate = false;
@@ -837,6 +861,8 @@ let Botkit = {
         return that;
     }
 };
+
+
 
 function diss() {
     Botkit.disconnectWebsocket();
