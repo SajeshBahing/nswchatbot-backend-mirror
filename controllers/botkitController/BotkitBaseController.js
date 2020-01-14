@@ -23,6 +23,34 @@ async function userMeta(user_id) {
     });
 }
 
+const processWatsonOnManualTrigger = async (bot, message) => {
+    if (message.watsonError) {
+        return await bot.reply(message, "I'm sorry, but for technical reasons I can't respond to your message");
+    }
+    if (typeof message.watsonData.output !== 'undefined') {
+        //send "Please wait" to users
+        if (message.watsonData.output.text.length > 0) {
+            await bot.reply(message, message.watsonData.output);
+        }
+
+        if (message.learn_more) {
+            const newMessage = { ...message };
+            newMessage.text = 'Learn more';
+            newMessage.learn_more = false;
+
+            try {
+                const contextDelta = message.watsonData.context;
+                await watsonMiddleware.sendToWatson(bot, newMessage, contextDelta);
+            } catch (error) {
+                newMessage.watsonError = error;
+            }
+            return await processWatsonOnManualTrigger(bot, newMessage);
+        }
+    }
+};
+
+botkit.on("learn_more", processWatsonOnManualTrigger);
+
 watsonMiddleware.before = async (message, payload) => {
     if (message.welcome_message) {
         delete payload.context;

@@ -31,31 +31,19 @@ let parseWatsonImage = (data) => {
 };
 
 let parseWatsonOptions = (data) => {
-    // let labels = ['<ul id="buttons">'];
-    // for (let i = 0; i < data.options.length; i++) {
-    //     let op = data.options[i];
-    //     console.log('option: ', op);
-    //     // TODO: make it clickable or append in quick reply!!
-    //     // TODO: Display multiple responses from a single reply!!
-    //     // message.html = converter.makeHtml(op.label);
-    //     labels.push(`<li><a href="#" onclick="Botkit.send(this.textContent); return false;">${ op.label }</a>`);
-    // }
-    // labels.push;
-    // console.log('Labels', labels);
-    // labels.push('<a href="#" onclick="Botkit.send(this.textContent);return false;">link text</a>');
-    // return converter.makeHtml(data.title + labels.join(''));
     return converter.makeHtml(data.title);
 };
 
 youtubeAction = {};
 
 onYouTubeIframeAPIReady = function() {
-    youtubeAction = function (id) {
+    youtubeAction = function (id, cb) {
         new YT.Player(id, {
             events : {
                 'onStateChange': function(state) {
                     if (state.data === 0 || state.data === 2) {
-                         console.log("Video paused of stopped");
+                        if (cb)
+                            cb();
                     }
                 }
             }
@@ -63,7 +51,7 @@ onYouTubeIframeAPIReady = function() {
     }
 };
 
-let parseYoutubeVideo = (msg) => {
+let parseYoutubeVideo = (msg, cb) => {
     // ('![youtube video](Hear from a group of High School students talking about gambling.https://www.youtube.com/watch?v=pVt94kSI74M)')
     // ![Alt text](url/to/image =250x250 "Optional title")
     let vid_url = msg.value.input.text;
@@ -73,14 +61,14 @@ let parseYoutubeVideo = (msg) => {
     html_ = html_.replace("<iframe", '<iframe id="' + id + '"');
 
     setTimeout(function() {
-        youtubeAction(id);
+        youtubeAction(id, cb);
     }, 1500);
 
     return html_;
 };
 
 //https://www.youtube.com/embed/videoseries?list=PLlxOaF8FyB0qsZ6DB2k6KWIt4CV-dtXgF
-let parseYoutubePlaylist = (msg) => {
+let parseYoutubePlaylist = (msg, cb) => {
     let response = '';
     let id = genId(6);
     msg.options.forEach((element) => {
@@ -88,7 +76,7 @@ let parseYoutubePlaylist = (msg) => {
     });
 
     setTimeout(function() {
-        youtubeAction(id);
+        youtubeAction(id, cb);
     }, 1500);
 
     return response;
@@ -147,6 +135,24 @@ let Botkit = {
     reconnect_count: 0,
     guid: null,
     current_user: null,
+    learn_more: true,
+    learnMoreCallback: function () {
+        var that = Botkit;
+        if (that.learn_more) {
+            that.deliverMessage({
+                type: 'learn_more',
+                welcome_message: false,
+                learn_more: that.learn_more,
+                user: that.guid,
+                session: that.session === '' ? false : that.session,
+                channel: 'socket',
+                user_profile: that.current_user ? that.current_user : null,
+                location: that.location
+            });
+
+            that.learn_more = false;
+        }
+    },
     setLocation: function (location) {
         this.location = location;
     },
@@ -325,7 +331,7 @@ let Botkit = {
         that.session = Botkit.getCookie('bootkit_session_id');
 
         if (this.options.enable_history) {
-            that.getHistory();
+            that.getHistory(); 
         }
 
         // Connection opened
@@ -536,6 +542,8 @@ let Botkit = {
             // eslint-disable-next-line brace-style
             {
                 message.avatar = that.images.bot;
+
+                that.learn_more = true;
                 if (message.generic) {
                     if (message.generic.length > 0) {
                         message.generic.forEach(gen => {
@@ -553,6 +561,8 @@ let Botkit = {
                                 message.tags = this.watsonMessages(gen);
                                 // message.message_option_type = 'multi_option';
                                 message.html = parseWatsonOptions(gen);
+
+                                that.learn_more = false;
                                 break;
                             case 'social_media':
                                 message.tags = this.watsonMessages(gen);
@@ -566,14 +576,14 @@ let Botkit = {
                                 message.html = '';
                                 gen.options.forEach((element) => {
                                     message.html += '<p>' + element.label + '</p>';
-                                    message.html += parseYoutubeVideo(element);
+                                    message.html += parseYoutubeVideo(element, that.learnMoreCallback);
                                 });
                                 break;
                             case 'video_playlist':
                                 message.type = 'youtube';
                                 message.html = gen.title;
 
-                                message.html += parseYoutubePlaylist(gen);
+                                message.html += parseYoutubePlaylist(gen, that.learnMoreCallback);
                                 break;
                             case 'pdf':
                                 message.type = 'pdf';
@@ -682,7 +692,7 @@ let Botkit = {
             Botkit.connect(event.data.user);
             break;
         default:
-            console.log('UNKNOWN COMMAND', event.data);
+            //console.log('UNKNOWN COMMAND', event.data);
         }
     },
     sendEvent: function (event) {
