@@ -7,6 +7,7 @@
 const google_api_key = 'AIzaSyBEkt43qoPKj27EmpbFC68hrzfiJu7nAIo';
 let converter = new showdown.Converter({ extensions: ['youtube'] });
 converter.setOption('openLinksInNewWindow', true);
+converter.setOption('youtubejsapi', true);
 
 let welcome_message = true;
 
@@ -14,6 +15,13 @@ let parseWatsonText = (data) => {
     return converter.makeHtml(data.text);
     // console.log(data);
 };
+
+let genId = function (length) {
+    var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var result = '';
+    for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+    return result;
+}
 
 let parseWatsonImage = (data) => {
     // ![Alt text](url/to/image =250x250 "Optional title")
@@ -39,27 +47,49 @@ let parseWatsonOptions = (data) => {
     return converter.makeHtml(data.title);
 };
 
+youtubeAction = {};
+
+onYouTubeIframeAPIReady = function() {
+    youtubeAction = function (id) {
+        new YT.Player(id, {
+            events : {
+                'onStateChange': function(state) {
+                    if (state.data === 0 || state.data === 2) {
+                         console.log("Video paused of stopped");
+                    }
+                }
+            }
+        });
+    }
+};
+
 let parseYoutubeVideo = (msg) => {
-    // ('![youtube video](https://www.youtube.com/watch?v=pVt94kSI74M)')
+    // ('![youtube video](Hear from a group of High School students talking about gambling.https://www.youtube.com/watch?v=pVt94kSI74M)')
     // ![Alt text](url/to/image =250x250 "Optional title")
     let vid_url = msg.value.input.text;
-    return converter.makeHtml('![youtube video](' + vid_url + ')');
+    let html_ = converter.makeHtml('![youtube video](' + vid_url + ')');
+
+    let id = genId(6);
+    html_ = html_.replace("<iframe", '<iframe id="' + id + '"');
+
+    setTimeout(function() {
+        youtubeAction(id);
+    }, 1500);
+
+    return html_;
 };
 
 //https://www.youtube.com/embed/videoseries?list=PLlxOaF8FyB0qsZ6DB2k6KWIt4CV-dtXgF
 let parseYoutubePlaylist = (msg) => {
     let response = '';
+    let id = genId(6);
     msg.options.forEach((element) => {
-        response += '<iframe id="Playlist" width="100%" src="' + element.value.input.text + '&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+        response += '<iframe id="'+id+'" width="100%" src="' + element.value.input.text + '&enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
     });
 
-    // new YT.Player('Playlist', {
-    //     events : {
-    //         'onStateChanged': function(playerStatus) {
-    //             console.log(playerStatus);
-    //         }
-    //     }
-    // });
+    setTimeout(function() {
+        youtubeAction(id);
+    }, 1500);
 
     return response;
 };
@@ -105,8 +135,8 @@ function websitePreview(data) {
 
 let Botkit = {
     config: {
-        ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://115.146.84.74:8051',
-        //ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://10.140.68.64:3000',
+        //ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://115.146.84.74:8051',
+        ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://10.140.68.64:3000',
         reconnect_timeout: 5000,
         max_reconnect: 5,
         enable_history: false
