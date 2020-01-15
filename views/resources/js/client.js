@@ -4,6 +4,7 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
+window.__forceSmoothScrollPolyfill__ = true;
 const google_api_key = 'AIzaSyBEkt43qoPKj27EmpbFC68hrzfiJu7nAIo';
 let converter = new showdown.Converter({ extensions: ['youtube'] });
 converter.setOption('openLinksInNewWindow', true);
