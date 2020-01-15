@@ -129,6 +129,38 @@ botkit.hears(
                         //triggering counselor map event
                         watson_msg = await eventHandler.triggerSync('counselor_map', message, watson_msg, index);
 
+                    } else if (gen.response_type === 'option' && gen.title === 'Gambling_calculator') {
+                        watson_msg.generic.splice(index, 1);
+
+                        let context = message.watsonData.context;
+
+                        let calculator_data = {};
+
+                        Object.keys(context).forEach( key => {
+                            if (String(key).startsWith("gambling")) {
+                                calculator_data[key] = context[key];
+                            }
+                        } );
+
+                        //implement business logic to deterine the cost
+                        console.log(calculator_data);
+
+                    } else if (gen.response_type === 'option' && gen.title === 'Gambling_quiz') {
+                        watson_msg.generic.splice(index, 1);
+
+                        let context = message.watsonData.context;
+
+                        let quiz_data = {};
+
+                        Object.keys(context).forEach( key => {
+                            if (String(key).startsWith("quiz")) {
+                                quiz_data[key] = context[key] == 'yes';
+                            }
+                        } );
+
+                        //apply business logic to deterine if user is affected by gambling
+                        console.log(quiz_data);
+
                     } else if (gen.response_type === 'option' && gen.title === 'user_details_prompt') {
 
                         userDetails(message.user, gen.options);

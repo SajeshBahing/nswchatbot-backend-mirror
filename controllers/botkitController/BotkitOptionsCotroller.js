@@ -55,7 +55,7 @@ let eventHandler = new Events();
 
 eventHandler.on('appointment_fixed', async (bot, message) => {
 
-    let context = await watsonMiddleware.readContext(message.user);
+    let context = message.watsonData.context;
     bot.reply(message, { sender_action: 'typing_on' });
 
     let date_ = new Date(context.appointment_date+" "+context.appointment_time);
@@ -95,7 +95,7 @@ eventHandler.on('appointment_fixed', async (bot, message) => {
 eventHandler.on('counselor_map', async function (message, watson_msg, index) {
     let origin = botkit.plugins.manager.session(message.user).get('location');
     if (origin === '') {
-        const context = await watsonMiddleware.readContext(message.user);
+        const context = message.watsonData.context;
         if (typeof context.location !== 'undefined') {
             origin = context.location;
         }
