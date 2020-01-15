@@ -35,10 +35,6 @@
                 <ul class="navbar-nav nav ml-auto">
                     <li class="nav-item"><a href="#home-section" class="nav-link"><span>Home</span></a></li>
                     <li class="nav-item"><a href="#services-section" class="nav-link"><span>Services</span></a></li>
-                    <li class="nav-item"><a href="#projects-section" class="nav-link"><span>Projects</span></a></li>
-                    <li class="nav-item"><a href="#about-section" class="nav-link"><span>About</span></a></li>
-                    <li class="nav-item"><a href="#testimony-section" class="nav-link"><span>Testimony</span></a></li>
-                    <li class="nav-item"><a href="#blog-section" class="nav-link"><span>Blog</span></a></li>
                     <li class="nav-item"><a href="#contact-section" class="nav-link"><span>Contact</span></a></li>
                 </ul>
             </div>
@@ -53,18 +49,20 @@
                 <div class="container-fluid p-0">
                     <div class="row d-md-flex no-gutters slider-text js-fullheight align-items-center justify-content-end"
                         data-scrollax-parent="true">
-                        <div class="one-third order-md-last img js-fullheight"
-                            style="background-image:url(/resources/images/drawing-4.png);"
-                            id="banner-image">
+                        <div class="one-third order-md-last img js-fullheight banner-image"
+                            style="background-image:url(/resources/images/drawing-4.png);">
                             <div class="overlay"></div>
                         </div>
                         <div class="one-forth d-flex js-fullheight align-items-center"
                             data-scrollax=" properties: { translateY: '70%' }">
                             <div class="text">
-                                <span class="subheading">Welcome to NSW Gambling help</span>
-                                <h1 class="mb-4 mt-3">Gambling calculator <span><br />Do you know how much your loses are adding up to?</span></h1>
-                                <p>Workout roughly what gambling is costing you over a year.</p>
-                                <p><a href="#" class="button-get-help px-5 py-3 mt-3">Estimate your loses</a></p>
+                                <span class="subheading">Welcome to NSW Gambling help, Lilibot</span>
+                                <h1 class="mb-4 mt-3"><span>Do you suspect gambling is affecting your life?</span></h1>
+                                <p>
+                                    Lilibot can help you find out the level at which gambling is affecting your life. She can also help you estimate your spending over a year, 
+                                    booking an appointment with the counselors and provide many more informations.
+                                </p>
+                                <p><button class="button-get-help px-5 py-3 mt-3" id="main-button">Chat with her now</button></p>
                             </div>
                         </div>
                     </div>
@@ -74,9 +72,42 @@
     </section>
 
     <section class="ftco-section ftco-no-pb ftco-no-pt ftco-services bg-light" id="services-section">
-        <div class="container">
+        <div class="navbar navbar-expand-lg d-md-none custom-nav">
+            <div class="container">
+                <a class="navbar-brand" href="#">Services</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon">&#9776;</span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+                    <div class="navbar-nav mr-auto mt-2 mt-lg-0">
+                        <a class="nav-item nav-link px-4 active" id="v-pills-1-tab" data-toggle="pill" href="#v-pills-1" role="tab"
+                            aria-controls="v-pills-1" aria-selected="true"><span class="mr-3 flaticon-ideas"></span>
+                            Get help!</a>
+                        <a class="nav-item nav-link px-4" id="v-pills-2-tab" data-toggle="pill" href="#v-pills-2" role="tab"
+                            aria-controls="v-pills-2" aria-selected="false"><span class="mr-3 flaticon-flasks"></span>
+                            Meet a counselor</a>
+                        <a class="nav-item nav-link px-4" id="v-pills-3-tab" data-toggle="pill" href="#v-pills-3" role="tab"
+                            aria-controls="v-pills-3" aria-selected="false"><span class="mr-3 flaticon-analysis"></span>
+                            Help in other languages</a>
+                        <a class="nav-item nav-link px-4" id="v-pills-4-tab" data-toggle="pill" href="#v-pills-4" role="tab"
+                            aria-controls="v-pills-4" aria-selected="false"><span class="mr-3 flaticon-web-design"></span>
+                            Financial counselling</a>
+                        <a class="nav-item nav-link px-4" id="v-pills-5-tab" data-toggle="pill" href="#v-pills-5" role="tab"
+                            aria-controls="v-pills-5" aria-selected="false"><span class="mr-3 flaticon-ux-design"></span>
+                            Gambling quiz</a>
+                        <a class="nav-item nav-link px-4" id="v-pills-6-tab" data-toggle="pill" href="#v-pills-6" role="tab"
+                            aria-controls="v-pills-6" aria-selected="false"><span class="mr-3 flaticon-innovation"></span>
+                            The real odds</a>
+                        <a class="nav-item nav-link px-4" id="v-pills-7-tab" data-toggle="pill" href="#v-pills-7" role="tab"
+                            aria-controls="v-pills-7" aria-selected="false"><span class="mr-3 flaticon-idea"></span>
+                            Talking with Teenagers</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container p-sm-0 p-xs-15">
             <div class="row no-gutters">
-                <div class="col-md-4 py-5 nav-link-wrap">
+                <div class="col-md-4 py-5 nav-link-wrap d-none d-md-block">
                     <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                         <a class="nav-link px-4 active" id="v-pills-1-tab" data-toggle="pill" href="#v-pills-1" role="tab"
                             aria-controls="v-pills-1" aria-selected="true"><span class="mr-3 flaticon-ideas"></span>
@@ -101,7 +132,7 @@
                             Talking with Teenagers</a>
                     </div>
                 </div>
-                <div class="col-md-8 p-4 p-md-5 d-flex align-items-center">
+                <div class="col-md-8 col-sm-12 p-sm-0 p-md-5 d-flex align-items-center clearfix">
                     <div class="tab-content pl-md-5" id="v-pills-tabContent">
                         <div class="tab-pane show active py-5" id="v-pills-1" role="tabpanel"
                             aria-labelledby="v-pills-1-tab">
@@ -155,6 +186,21 @@
         </div>
     </section>
 
+    <section id="contact-section" class="py-5">
+        <div class="container p-sm-0 p-xs-15">
+            <div class="contact-us-section">
+                <div class="contact-us-content">
+                    <h4>Deakin Launchpad</h4>
+                    <p><strong>Phone us </strong><a style="color: #019cde;" href="tel:+61392446333">+61 3 9244 6333</a></p>
+                    <p>More info at <a style="color: #019cde;" href="http://deakin-launchpad.com/" target="_blank"><strong>Launchpad</strong></a></p>
+                    <p>Monday to Friday 8.30am–8pm</p>
+                    <p>Saturday 10am–2pm</p>
+                </div>
+                <iframe class="d-none d-md-block d-lg-block" width="100%" height="450" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3150.293846802287!2d145.15852691492643!3d-37.85341434408549!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad63f0d23f6cb33%3A0x33b9f1a9aa798251!2sDeakin%20University%20Greenwood%20Park!5e0!3m2!1sen!2sau!4v1579056322214!5m2!1sen!2sau" frameborder="0" style="border:0;" allowfullscreen=""></iframe>
+            </div>
+        </div>
+    </section>
+
     <!-- Bot section -->
     <div id="embedded_messenger">
         <div id="message_header" class="inactive" onclick="Botkit.toggle()">
@@ -164,6 +210,7 @@
     </div>
     <script src="/resources/js/embed.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://getbootstrap.com/docs/4.1/assets/js/vendor/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 
     <script>
@@ -181,6 +228,14 @@
 
         };
         fullHeight();
+
+        $(".custom-nav .nav-item").on("click", function(e){
+            $(this).siblings().removeClass("active");
+        });
+
+        $("#main-button").on("click", function() {
+            Botkit.toggle();
+        });
     })(jQuery);
     </script>
 </body>
