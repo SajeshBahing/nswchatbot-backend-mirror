@@ -225,7 +225,7 @@ let Botkit = {
         };
 
         if (typeof extra !== 'undefined') {
-            message_data = { ...message_data, ...extra };
+            message_data = Object.assign(message_data, extra);
         }
 
         that.deliverMessage(message_data);
