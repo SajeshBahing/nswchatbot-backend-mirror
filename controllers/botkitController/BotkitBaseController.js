@@ -172,8 +172,11 @@ botkit.hears(
                         
                         watson_msg.generic.splice(index, 1);
 
-                        if (!response)
+                        if (!response) {
                             watson_msg.generic[0].text = 'Provided date and time is not available. Please select other date and time';
+
+                            watson_msg.generic.splice(index, 2); 
+                        }
                     }
                 });
             }

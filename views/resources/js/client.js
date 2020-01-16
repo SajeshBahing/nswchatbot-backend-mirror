@@ -547,6 +547,9 @@ let Botkit = {
                 that.learn_more = true;
                 if (message.generic) {
                     if (message.generic.length > 0) {
+
+                        let length = 0;
+
                         message.generic.forEach(gen => {
                             let useTemplate = true;
                             switch (gen.response_type) {
@@ -609,6 +612,13 @@ let Botkit = {
 
                             that.next_line = document.createElement('div');
                             that.message_list.appendChild(that.next_line);
+                            
+                            if (length == 0) {
+                                let prevSibling = that.next_line.previousSibling;
+                                if (prevSibling) {
+                                    length += prevSibling.scrollHeight;
+                                }
+                            }
 
                             if (useTemplate) {
                                 that.next_line.innerHTML = that.message_template({
@@ -619,7 +629,12 @@ let Botkit = {
                                     that.next_line.appendChild(element);
                                 });
                             }
+
+                            length += that.next_line.scrollHeight + 15;
                         });
+                        //scroll at top of new message
+                        var main_message_container = document.querySelector('#message_main_container');
+                        main_message_container.scrollTo(0, main_message_container.scrollHeight - (length + 15));
                     }
                 } else {
                     that.next_line = document.createElement('div');
@@ -630,10 +645,16 @@ let Botkit = {
                         message: message
                     });
                     that.focus();
+
+                    var main_message_container = document.querySelector('#message_main_container');
+                    main_message_container.scrollTo(0, main_message_container.scrollHeight);
                 }
 
                 document.querySelectorAll('#message_list > div:not(:last-child)').forEach((element) => {
                     element.querySelectorAll('.chat-tags a').forEach((elem) => {
+                        elem.parentElement.style.opacity = '0.7';
+                        elem.parentElement.style.cursor = 'not-allowed';
+                        elem.style.cursor='not-allowed';
                         elem.removeAttribute('onclick');
                     });
                 });
@@ -646,9 +667,6 @@ let Botkit = {
         if (!message.isTyping) {
             delete (that.next_line);
         }
-
-        var main_message_container = document.querySelector('#message_main_container');
-        main_message_container.scrollTo(0, main_message_container.scrollHeight);
     },
     triggerScript: function (script, thread) {
         this.deliverMessage({
@@ -902,8 +920,6 @@ let Botkit = {
         return that;
     }
 };
-
-
 
 function diss() {
     Botkit.disconnectWebsocket();
