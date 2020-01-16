@@ -137,6 +137,7 @@ let Botkit = {
     guid: null,
     current_user: null,
     learn_more: true,
+    scroll_skip_previous : false,
     learnMoreCallback: function () {
         var that = Botkit;
         if (that.learn_more) {
@@ -549,6 +550,7 @@ let Botkit = {
                     if (message.generic.length > 0) {
 
                         let length = 0;
+                        let LengthyVideoMessage = false;
 
                         message.generic.forEach(gen => {
                             let useTemplate = true;
@@ -582,12 +584,14 @@ let Botkit = {
                                     message.html += '<p>' + element.label + '</p>';
                                     message.html += parseYoutubeVideo(element, that.learnMoreCallback);
                                 });
+                                LengthyVideoMessage = true;
                                 break;
                             case 'video_playlist':
                                 message.type = 'youtube';
                                 message.html = gen.title;
 
                                 message.html += parseYoutubePlaylist(gen, that.learnMoreCallback);
+                                LengthyVideoMessage = true;
                                 break;
                             case 'pdf':
                                 message.type = 'pdf';
@@ -614,9 +618,11 @@ let Botkit = {
                             that.message_list.appendChild(that.next_line);
                             
                             if (length == 0) {
-                                let prevSibling = that.next_line.previousSibling;
-                                if (prevSibling) {
-                                    length += prevSibling.scrollHeight;
+                                if (!that.scroll_skip_previous) {
+                                    let prevSibling = that.next_line.previousSibling;
+                                    if (prevSibling) {
+                                        length += prevSibling.scrollHeight;
+                                    }
                                 }
                             }
 
@@ -635,6 +641,8 @@ let Botkit = {
                         //scroll at top of new message
                         var main_message_container = document.querySelector('#message_main_container');
                         main_message_container.scrollTo(0, main_message_container.scrollHeight - (length + 15));
+
+                        that.scroll_skip_previous = LengthyVideoMessage;
                     }
                 } else {
                     that.next_line = document.createElement('div');
