@@ -28,9 +28,12 @@ var Botkit = {
         }
         let message_header = document.getElementById('message_header');
         let botkit_client = document.getElementById('botkit_client');
+        let embedded_messenger = document.getElementById('embedded_messenger');
         message_header.innerHTML = '';
         message_header.className = 'active_header';
         botkit_client.style.display = 'block';
+        embedded_messenger.style.height = this.chatClientHeight + "px";
+
         this.setCookie('botkit_messenger_active', this.active);
     },
     deactivate: function() {
@@ -40,9 +43,12 @@ var Botkit = {
         }
         let message_header = document.getElementById('message_header');
         let botkit_client = document.getElementById('botkit_client');
+        let embedded_messenger = document.getElementById('embedded_messenger');
         message_header.className = 'inactive';
         message_header.innerHTML = '<img id="chat_icon" alt="chat" src="resources/images/chat_white_72x72.png"/>';
         botkit_client.style.display = 'none';
+        embedded_messenger.style.height = 0;
+
         this.setCookie('botkit_messenger_active', this.active);
     },
     toggle: function() {
@@ -101,6 +107,7 @@ var Botkit = {
         that.container = document.getElementById('embedded_messenger');
         that.header = document.getElementById('messenger_header');
         that.chatClient = document.getElementById('botkit_client').contentWindow;
+        that.chatClientHeight = that.container.scrollHeight;
 
         if (typeof options.user !== 'undefined') {
             that.current_user = options.user;
