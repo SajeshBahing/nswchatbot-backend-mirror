@@ -125,6 +125,7 @@ botkit.hears(
 
             if (watson_msg.generic) {
                 await iterateMessage(watson_msg.generic, async (gen, index) => {
+                    
                     let common_options = ['video', 'pdf', 'link', 'social_media'];
 
                     if (gen.response_type === 'text' && gen.text === '') {
@@ -146,7 +147,6 @@ botkit.hears(
 
                     } else if (gen.response_type === 'option' && gen.title === 'Gambling_calculator') {
                         let response = {};
-                        
                         try {
                             watson_msg.generic.splice(index, 1)[0].options.forEach(element => {
                                 response[element.label] = element.value.input.text;
@@ -154,7 +154,7 @@ botkit.hears(
                         } catch(error) {
                             console.log(error);
                         }
-
+                        
                         let context = message.watsonData.context;
                         let calculator_data = {};
 
@@ -179,7 +179,7 @@ botkit.hears(
                         } else {
 
                             let response_text = response['negative'];
-                            response_text = response_text.replace('{amount}', '$' + (spending - winning) * 12);
+                            response_text = response_text.replace('{amount}', '<strong style="font-size: 20px;">$' + (spending - winning) * 12 + '</strong>');
 
                             watson_msg.generic.push({
                                 'response_type': 'text',
