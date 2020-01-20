@@ -3,25 +3,9 @@ let botkit = Config.BOTKIT_CONFIG.botkit;
 let watsonMiddleware = Config.BOTKIT_CONFIG.watsonMiddleware;
 let URL = require('url').URL;
 
-// import { takeScreenshot } from '../../lib/ScreenshotManager';
 import eventHandler from './BotkitOptionsCotroller';
 
 require('./BotkitLogController');
-
-async function userMeta(user_id) {
-    const labels = ['username', 'email', 'phone', 'location'];
-
-    return new Promise(async (resolve) => {
-        let context_ = {};
-        for (let i = 0; i < labels.length; i++) {
-            let value = await botkit.plugins.log.get(user_id, labels[i]);
-            if (value !== '')
-                context_[labels[i]] = value;
-        }
-
-        resolve(context_);
-    });
-}
 
 const processWatsonOnManualTrigger = async (bot, message) => {
     if (message.watsonError) {
@@ -50,6 +34,21 @@ const processWatsonOnManualTrigger = async (bot, message) => {
 };
 
 botkit.on("learn_more", processWatsonOnManualTrigger);
+
+async function userMeta(user_id) {
+    const labels = ['username', 'email', 'phone', 'location'];
+
+    return new Promise(async (resolve) => {
+        let context_ = {};
+        for (let i = 0; i < labels.length; i++) {
+            let value = await botkit.plugins.log.get(user_id, labels[i]);
+            if (value !== '')
+                context_[labels[i]] = value;
+        }
+
+        resolve(context_);
+    });
+}
 
 watsonMiddleware.before = async (message, payload) => {
     if (message.welcome_message) {

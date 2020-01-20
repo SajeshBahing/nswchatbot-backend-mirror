@@ -56,7 +56,6 @@ let eventHandler = new Events();
 eventHandler.on('appointment_fixed', async (bot, message) => {
 
     let context = message.watsonData.context;
-    bot.reply(message, { sender_action: 'typing_on' });
 
     let date_ = new Date(context.appointment_date+" "+context.appointment_time);
 
