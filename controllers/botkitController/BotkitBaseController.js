@@ -143,6 +143,7 @@ botkit.hears(
                         } );
 
                         //implement business logic to deterine the cost
+                        eventHandler.trigger('GamblingCalculatorAndQuizData', message, calculator_data);
                         console.log(calculator_data);
 
                     } else if (gen.response_type === 'option' && gen.title === 'Gambling_quiz') {
@@ -159,6 +160,7 @@ botkit.hears(
                         } );
 
                         //apply business logic to deterine if user is affected by gambling
+                        eventHandler.trigger('GamblingCalculatorAndQuizData', message, quiz_data);
                         console.log(quiz_data);
 
                     } else if (gen.response_type === 'option' && gen.title === 'user_details_prompt') {

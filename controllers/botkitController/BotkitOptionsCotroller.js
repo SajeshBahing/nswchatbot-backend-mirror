@@ -127,4 +127,10 @@ eventHandler.on('counselor_map', async function (message, watson_msg, index) {
     return watson_msg;
 });
 
+eventHandler.on('GamblingCalculatorAndQuizData', async (message, data) => {
+    Object.keys(data).forEach(element => {
+       botkit.plugins.log.write(message.user, element, data[element]); 
+    });
+});
+
 export default eventHandler;

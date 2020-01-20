@@ -137,7 +137,7 @@ let Botkit = {
     guid: null,
     current_user: null,
     learn_more: true,
-    scroll_skip_previous : false,
+    scroll_skip_previous : false, 
     learnMoreCallback: function () {
         var that = Botkit;
         if (that.learn_more) {
@@ -466,13 +466,24 @@ let Botkit = {
         // document.querySelector('#message_replies').innerHTML = labels.join('');
     },
     filterLinks: function (text) {
-        var regLink = new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g);
+        if (text.indexOf('[link href="') >= 0) {
+            var link = text.substring(text.indexOf('href="') + 6, text.indexOf('"]') - 1)
+            var text_ = text.substring(text.indexOf('"]')+ 2, text.indexOf('[link]') );
 
-        var links = text.match(regLink);
-        if (links !== null) {
-            for (var i = 0; i <= links.length; i++) {
-                if (typeof links[i] !== 'undefined') {
-                    text = text.replace(links[i], '<a href="' + links[i] + '" target="_blank">' + links[i] + '</a>');
+            text_ = '<a target="_blank" href="'+ link +'">' + text_ + '</a>';
+
+            var original_text = text.substring(text.indexOf('[link'), text.indexOf('[link]') + 6);
+            
+            text = text.replace(original_text, text_);
+        } else {
+            var regLink = new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g);
+
+            var links = text.match(regLink);
+            if (links !== null) {
+                for (var i = 0; i <= links.length; i++) {
+                    if (typeof links[i] !== 'undefined') {
+                        text = text.replace(links[i], '<a href="' + links[i] + '" target="_blank">' + links[i] + '</a>');
+                    }
                 }
             }
         }
