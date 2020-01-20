@@ -36,7 +36,23 @@ const processWatsonOnManualTrigger = async (bot, message) => {
 botkit.on("learn_more", processWatsonOnManualTrigger);
 
 async function userMeta(user_id) {
-    const labels = ['username', 'email', 'phone', 'location'];
+    const labels = ['username', 'email', 'phone', 'location',
+                    'quiz_depressed', 
+                    'quiz_guilty', 
+                    'quiz_caused_problems', 
+                    'quiz_broke', 
+                    'quiz_urge_to_return', 
+                    'quiz_hide_gambling', 
+                    'quiz_try_debts_payment', 
+                    'quiz_criticism',
+                    'quiz_taken',
+                    'gambling_days_in_month',
+                    'gambling_amount_spent',
+                    'gambling_amount_withdraw',
+                    'gambling_amount_borrowed',
+                    'gambling_amount_won',
+                    'gambling_calculation_done'
+                ];
 
     return new Promise(async (resolve) => {
         let context_ = {};
@@ -129,38 +145,88 @@ botkit.hears(
                         watson_msg = await eventHandler.triggerSync('counselor_map', message, watson_msg, index);
 
                     } else if (gen.response_type === 'option' && gen.title === 'Gambling_calculator') {
-                        watson_msg.generic.splice(index, 1);
+                        let response = {};
+                        
+                        try {
+                            watson_msg.generic.splice(index, 1)[0].options.forEach(element => {
+                                response[element.label] = element.value.input.text;
+                            });
+                        } catch(error) {
+                            console.log(error);
+                        }
 
                         let context = message.watsonData.context;
-
                         let calculator_data = {};
 
                         Object.keys(context).forEach( key => {
                             if (String(key).startsWith("gambling")) {
                                 calculator_data[key] = context[key];
                             }
-                        } );
+                        });
+                        calculator_data['gambling_calculation_done'] = 'yes';
 
-                        //implement business logic to deterine the cost
+                        let spending = (calculator_data['gambling_days_in_month'] * calculator_data['gambling_amount_spent']) +
+                        (calculator_data['gambling_days_in_month'] * calculator_data['gambling_amount_withdraw']) + 
+                        (calculator_data['gambling_days_in_month'] * calculator_data['gambling_amount_borrowed']);
+
+                        let winning = calculator_data['gambling_days_in_month'] * calculator_data['gambling_amount_won'];
+
+                        if (spending === winning) {
+                            watson_msg.generic.push({
+                                'response_type': 'text',
+                                'text': response['positive']
+                            });
+                        } else {
+
+                            let response_text = response['negative'];
+                            response_text = response_text.replace('{amount}', '$' + (spending - winning) * 12);
+
+                            watson_msg.generic.push({
+                                'response_type': 'text',
+                                'text': response_text
+                            });
+                        }
+
                         eventHandler.trigger('GamblingCalculatorAndQuizData', message, calculator_data);
-                        console.log(calculator_data);
 
                     } else if (gen.response_type === 'option' && gen.title === 'Gambling_quiz') {
-                        watson_msg.generic.splice(index, 1);
-
+                        let response = {};
+                        
+                        try {
+                            watson_msg.generic.splice(index, 1)[0].options.forEach(element => {
+                                response[element.label] = element.value.input.text;
+                            });
+                        } catch(error) {
+                            console.log(error);
+                        }
+                        
                         let context = message.watsonData.context;
-
                         let quiz_data = {};
+                        let positive = false;
 
                         Object.keys(context).forEach( key => {
                             if (String(key).startsWith("quiz")) {
-                                quiz_data[key] = context[key] == 'yes';
+                                quiz_data[key] = context[key] == 'yes' || (typeof context[key] === 'boolean' && context[key]);
+                                if (quiz_data[key]) {
+                                    positive = true;
+                                }
                             }
-                        } );
+                        });
+                        quiz_data['quiz_taken'] = 'yes';
 
-                        //apply business logic to deterine if user is affected by gambling
+                        if (positive) {
+                            watson_msg.generic.push({
+                                'response_type': 'text',
+                                'text': response['negative']
+                            });
+                        } else {
+                            watson_msg.generic.push({
+                                'response_type': 'text',
+                                'text': response['positive']
+                            });
+                        }
+
                         eventHandler.trigger('GamblingCalculatorAndQuizData', message, quiz_data);
-                        console.log(quiz_data);
 
                     } else if (gen.response_type === 'option' && gen.title === 'user_details_prompt') {
 
