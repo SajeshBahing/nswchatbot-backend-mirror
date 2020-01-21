@@ -32,8 +32,66 @@ const processWatsonOnManualTrigger = async (bot, message) => {
         }
     }
 };
-
 botkit.on("learn_more", processWatsonOnManualTrigger);
+
+const processRedoCalculation = async(bot, message) => {
+    if (message.watsonError) {
+        return await bot.reply(message, "I'm sorry, but for technical reasons I can't respond to your message");
+    }
+
+    if (typeof message.watsonData.output !== 'undefined') {
+
+        if (message.watsonData.output.text.length > 0) {
+            await bot.reply(message, message.watsonData.output);
+        }
+
+        if (message.type === 'redo_calculation' || message.type === 'redo_quiz') {
+            const newMessage = { ...message };
+            newMessage.type = 'text';
+            newMessage.text = message.type === 'redo_quiz' ? 'Quiz' : 'Calculator';
+
+            try {
+                const contextDelta = message.watsonData.context;
+                
+                let keys = message.type === 'redo_quiz' ?
+                [
+                    'quiz_depressed', 
+                    'quiz_guilty', 
+                    'quiz_caused_problems', 
+                    'quiz_broke', 
+                    'quiz_urge_to_return', 
+                    'quiz_hide_gambling', 
+                    'quiz_try_debts_payment', 
+                    'quiz_criticism',
+                    'quiz_taken'
+                ]
+                :
+                [
+                    'gambling_days_in_month',
+                    'gambling_amount_spent',
+                    'gambling_amount_withdraw',
+                    'gambling_amount_borrowed',
+                    'gambling_amount_won',
+                    'gambling_calculation_done'
+                ];
+                
+                Object.keys(contextDelta).forEach(key => {
+                    if (keys.includes(key)){
+                        delete contextDelta[key];
+                    }
+                });
+                
+                await watsonMiddleware.updateContext(message.user, contextDelta);
+                await watsonMiddleware.sendToWatson(bot, newMessage, contextDelta);
+            } catch (error) {
+                newMessage.watsonError = error;
+            }
+            return await processRedoCalculation(bot, newMessage);
+        }
+    }
+};
+botkit.on("redo_calculation", processRedoCalculation);
+botkit.on("redo_quiz", processRedoCalculation);
 
 async function userMeta(user_id) {
     const labels = ['username', 'email', 'phone', 'location',
@@ -126,16 +184,16 @@ botkit.hears(
             if (watson_msg.generic) {
                 await iterateMessage(watson_msg.generic, async (gen, index) => {
                     
-                    let common_options = ['video', 'pdf', 'link', 'social_media'];
+                    let common_options = ['video', 'pdf', 'link', 'social_media', 'redo_calculation', 'redo_quiz'];
 
                     if (gen.response_type === 'text' && gen.text === '') {
                         watson_msg.generic.splice(index, 1);
                     }
 
                     if (gen.response_type === 'option' && common_options.includes(gen.title)) {
-                        gen.options.forEach(async (option, ind) => {
-                            watson_msg.generic[index].response_type = gen.title;
-                        });
+                        
+                        watson_msg.generic[index].response_type = gen.title;
+
                     } else if (gen.response_type === 'option' && gen.title === 'video_playlist') {
                         gen.options.forEach(async (option, ind) => {
                             watson_msg.generic[index].title = option.label;
@@ -172,16 +230,15 @@ botkit.hears(
                         let winning = calculator_data['gambling_days_in_month'] * calculator_data['gambling_amount_won'];
 
                         if (spending === winning) {
-                            watson_msg.generic.push({
+                            watson_msg.generic.unshift({
                                 'response_type': 'text',
                                 'text': response['positive']
                             });
                         } else {
-
                             let response_text = response['negative'];
                             response_text = response_text.replace('{amount}', '<strong style="font-size: 20px;">$' + (spending - winning) * 12 + '</strong>');
 
-                            watson_msg.generic.push({
+                            watson_msg.generic.unshift({
                                 'response_type': 'text',
                                 'text': response_text
                             });
@@ -205,7 +262,7 @@ botkit.hears(
                         let positive = false;
 
                         Object.keys(context).forEach( key => {
-                            if (String(key).startsWith("quiz")) {
+                            if (String(key).startsWith("quiz") && key !== 'quiz_taken') {
                                 quiz_data[key] = context[key] == 'yes' || (typeof context[key] === 'boolean' && context[key]);
                                 if (quiz_data[key]) {
                                     positive = true;
@@ -215,12 +272,12 @@ botkit.hears(
                         quiz_data['quiz_taken'] = 'yes';
 
                         if (positive) {
-                            watson_msg.generic.push({
+                            watson_msg.generic.unshift({
                                 'response_type': 'text',
                                 'text': response['negative']
                             });
                         } else {
-                            watson_msg.generic.push({
+                            watson_msg.generic.unshift({
                                 'response_type': 'text',
                                 'text': response['positive']
                             });

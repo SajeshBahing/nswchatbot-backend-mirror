@@ -452,6 +452,14 @@ let Botkit = {
                 labels.push(`<span><a target="_blank" href="${op.value.input.text}">${op.label}</a></span>`);
                 break;
 
+            case 'redo_calculation':
+                labels.push(`<span><a href="#" onclick="Botkit.send('${op.label}', false, 'redo_calculation'); return false;">${op.label}</a></span>`);
+                break;
+            case 'redo_quiz':
+                labels.push(`<span><a href="#" onclick="Botkit.send('${op.label}', false, 'redo_quiz'); return false;">${op.label}</a></span>`);
+                break;
+                redo_quiz
+
             default:
                 if (op.label === op.value.input.text) {
                     labels.push(`<span><a href="#" onclick="Botkit.send(this.textContent); return false;">${ op.label }</a></span>`);
@@ -576,7 +584,6 @@ let Botkit = {
                                 break;
                             case 'option':
                                 message.tags = this.watsonMessages(gen);
-                                // message.message_option_type = 'multi_option';
                                 message.html = parseWatsonOptions(gen);
 
                                 that.learn_more = false;
@@ -621,6 +628,16 @@ let Botkit = {
                                 message.type = 'counselor_map';
                                 message.tags = this.watsonMessages(gen);
                                 message.html = this.filterLinks(parseWatsonOptions(gen));
+                                break;
+
+                            case 'redo_calculation':
+                                message.html = '';
+                                message.tags = this.watsonMessages(gen);
+                                break;
+
+                            case 'redo_quiz':
+                                message.html = '';
+                                message.tags = this.watsonMessages(gen);
                                 break;
                             default:
                             }
@@ -789,6 +806,14 @@ let Botkit = {
 
         that.message_list = document.getElementById('message_list');
 
+        Handlebars.registerHelper('if_equal', function(a, b, opts) {
+            if (a != b) {
+                return opts.fn(this)
+            } else {
+                return opts.inverse(this)
+            }
+        });
+
         var source = '<div class="message {{message.type}}">\
                         {{#if message.isTyping}}\
                             <div class="typing-indicator">\
@@ -797,12 +822,14 @@ let Botkit = {
                                 <span></span>\
                             </div>\
                         {{/if}}\
+                        {{#if_equal message.html ""}}\
                         <div class="avatar">\
                             <img src="resources/images/{{{message.avatar}}}" alt="Avatar"/>\
                         </div>\
                         <div class="message-content">\
                             {{{message.html}}}\
                         </div>\
+                        {{/if_equal}}\
                         <div class="chat-tags {{{message.message_option_type}}}" id="message_replies">{{{message.tags}}}</div>\
                         <div class="images_selector">{{{message.image_selection}}}</div>\
                     </div>';
