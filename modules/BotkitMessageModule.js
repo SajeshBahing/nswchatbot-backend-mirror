@@ -13,7 +13,6 @@ module.exports = function (botkit) {
 
         message.watsonData.output = message.welcome_message ? message.watsonData.output : '';
 
-        
         await bot.reply(message, {'type' : 'session', 'session_id': uniqueSessionID });
         return await bot.reply(message, message.watsonData.output);
     });

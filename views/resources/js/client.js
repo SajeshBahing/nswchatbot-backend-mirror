@@ -321,10 +321,9 @@ let Botkit = {
         // Create WebSocket connection.
         that.socket = new WebSocket(ws_url);
 
-        let connectEvent;
+        let connectEvent = 'welcome';
         if (Botkit.getCookie('botkit_guid')) {
             that.guid = Botkit.getCookie('botkit_guid');
-            connectEvent = 'welcome';
         } else {
             that.guid = that.generate_guid();
             Botkit.setCookie('botkit_guid', that.guid, 1);
