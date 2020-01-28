@@ -92,9 +92,40 @@
       margin-bottom: 15px;
       height: 317px;
       overflow-y: auto; }
+      .chat-container .chat-body .pdf-viewer-container:hover:after {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        content: "Open the file.";
+        box-sizing: border-box;
+        padding: 10px 0;
+        text-align: center;
+        color: #fff;
+        font-weight: bold;
+        background: #D61E3B;
+        cursor: help;
+    }
+    .chat-container .chat-body .pdf-viewer-container:hover:before {
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      content: "Open the file.";
+      box-sizing: border-box;
+      padding: 10px 0;
+      text-align: center;
+      color: #fff;
+      font-weight: bold;
+      background: #D61E3B;
+      cursor: help;
+      z-index: 1;
+  }
       .chat-container .chat-body .pdf-viewer-container {
         display: block;
-        margin-bottom: 10px; }
+        margin-bottom: 10px;
+        position: relative;
+      }
         .chat-container .chat-body .pdf-viewer-container .pdf-viewer {
           background: gray;
           box-shadow: 0 0 4px -1px grey;

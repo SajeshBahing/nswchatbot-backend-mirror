@@ -102,7 +102,7 @@ let parsePdf = (gen) => {
         var viewport = page.getViewport({ scale: scale });
 
         var context = canvas.getContext('2d');
-        canvas.height = (viewport.height) / 3;
+        canvas.height = (viewport.height);
         canvas.width = viewport.width;
 
         var renderContext = {
@@ -124,8 +124,8 @@ function websitePreview(data) {
 
 let Botkit = {
     config: {
-        //ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://115.146.84.74:8051',
-        ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://10.140.68.64:3000',
+        ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://115.146.85.132:8051',
+        //ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://10.140.68.64:3000',
         reconnect_timeout: 5000,
         max_reconnect: 5,
         enable_history: false
