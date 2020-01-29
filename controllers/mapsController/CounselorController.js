@@ -62,6 +62,7 @@ export async function calculateDistances(origin) {
                 phone: element.phone,
                 service_area: element.service_area,
                 id: element._id,
+                location: element.location,
                 distance: (parseFloat(element.dist.distance) / 1000).toFixed(2)
             }
         );

@@ -124,8 +124,8 @@ function websitePreview(data) {
 
 let Botkit = {
     config: {
-        ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://115.146.85.132:8051',
-        //ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://10.140.68.64:3000',
+        //ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://115.146.85.132:8051',
+        ws_url: (location.protocol === 'https' ? 'wss' : 'ws') + '://10.149.235.183:3000',
         reconnect_timeout: 5000,
         max_reconnect: 5,
         enable_history: false
@@ -400,18 +400,37 @@ let Botkit = {
 
             switch (contents.response_type) {
             case 'counselor_map':
-                let map = 'http://maps.google.co.in/maps?q=' + op.value.split(' ').join('+');
-                labels.push(
-                    `<span class="tag-location">\
-                    ${ op.label } (${ op.service_area.join(', ') })<br />\
-                    <a href="${ map }" target="_blank" onclick="">${ op.value }</a></br />\
-                    Phone: <a href="tel:${ op.phone }">${ op.phone }</a></br>\
-                    <a href="#" title="Book appointment" onclick="Botkit.send('Book an appointment with ${ op.label }', false, 'message', {'counselor': '${ op.id }'}); return false;" class="appointment_button">\
-                        <i class="material-icons">chevron_right</i>\
-                        <span>Book an appointment</span>\
-                    </a>\
-                    </span>`
-                );
+                let map = 'https://www.google.com/maps/embed/v1/place?key=' + google_api_key + '&q=' + op.value.split(' ').join('+');
+                let center = [
+                  (op.location.coordinates[1] + 0.00200),
+                  (op.location.coordinates[0] + 0.00150)
+                ];
+
+                op.service_area_excerpt = op.service_area.length > 2 ? op.service_area.splice(0, 2) : op.service_area;
+
+                let htmlContent = 
+                    `<div class="map-card">
+                      <div class="map-container">
+                      <iframe
+                        frameborder="0" style="border:0"
+                        src="${ map }&center=${ center.join(',') }" allowfullscreen>
+                      </iframe>
+                      </div><div class="map-card-content">
+                        <b>${ op.label }</b><br />
+                        <label class="simple-tooltip" title="${ op.service_area.join(", ") }"><i class="material-icons">contact_support</i> ${ op.service_area_excerpt.join(", ") }</label><br />
+                        <label><i class="material-icons">call</i> <a href="tel:${ op.phone }">${ op.phone }</a></label><br />
+                        <label><i class="material-icons">my_location</i> ${ op.distance } km</label>
+
+                        <button title="Book an appointment" class="book-appointment" onclick="Botkit.send('Book an appointment with ${ op.label }', false, 'message', {'counselor': '${ op.id }'}); return false;">
+                          <i class="material-icons">
+                          perm_contact_calendar
+                          </i>
+                        </button>
+                      </div>
+                    </div>`
+                ;
+
+                labels.push(htmlContent);
                 break;
 
             case 'social_media':
@@ -569,8 +588,11 @@ let Botkit = {
 
                         let length = 0;
                         let LengthyVideoMessage = false;
+                        let show_avatar = true;
 
                         message.generic.forEach(gen => {
+                            message.show_avatar = show_avatar;
+                            show_avatar = false;
                             let useTemplate = true;
                             switch (gen.response_type) {
                             case 'text':
@@ -822,9 +844,11 @@ let Botkit = {
                             </div>\
                         {{/if}}\
                         {{#if_equal message.html ""}}\
-                        <div class="avatar">\
-                            <img src="resources/images/{{{message.avatar}}}" alt="Avatar"/>\
-                        </div>\
+                          {{#if_equal message.show_avatar ""}}\
+                          <div class="avatar">\
+                              <img src="resources/images/{{{message.avatar}}}" alt="Avatar"/>\
+                          </div>\
+                          {{/if_equal}}\
                         <div class="message-content">\
                             {{{message.html}}}\
                         </div>\
@@ -993,6 +1017,23 @@ function geocode(text, cb) {
 (function () {
     // your page initialization code here
     // the DOM will be available here
+    document.addEventListener("click", function(event) {
+      if(event.target.matches('.simple-tooltip')) {
+        
+        let tooltip = event.target.querySelector(".tooltip");
+
+        if (tooltip === null) {
+          tooltip = document.createElement("span");
+          tooltip.classList.add("tooltip");
+          tooltip.innerHTML = event.target.getAttribute('title');
+
+          event.target.appendChild(tooltip);
+
+        } else {
+          event.target.removeChild(tooltip);
+        }
+      };
+    });
 
     navigator.geolocation.watchPosition(
         function (position) {
