@@ -8,5 +8,6 @@ module.exports = {
   IntentService: require("./watson/intentService"),
   EntityService: require("./watson/entityService"),
   DialogService: require("./watson/dialogService"),
-  CounselorService: require("./maps/CounselorService")
+  CounselorService: require("./maps/CounselorService"),
+  TrackerService: require("./TrackerService")
 };

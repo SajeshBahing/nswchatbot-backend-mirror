@@ -21,6 +21,7 @@ module.exports = {
   WatsonEntity: require('./watson/entity'),
   WatsonDialog: require('./watson/dialog'),
   Counselor: require('./maps/counselors'),
-  Appointment: require('./appointment')
+  Appointment: require('./appointment'),
+  Tracker: require('./tracker')
 };
 

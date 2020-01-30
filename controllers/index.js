@@ -19,6 +19,8 @@ import watsonDialogController from './watsonController/watsonDialogController';
 
 import cousnselorAPIController from './counselorController/cousnselorAPIController';
 
+import trackerController from './trackerController/trackerBaseController';
+
 module.exports = {
     DemoBaseController: demoController,
     UserBaseController: userController,
@@ -26,5 +28,6 @@ module.exports = {
     WatsonIntentController: watsonIntentController,
     WatsonEntityController: watsonEntityController,
     WatsonDialogController: watsonDialogController,
-    cousnselorAPIController: cousnselorAPIController
+    cousnselorAPIController: cousnselorAPIController,
+    TrackerController: trackerController
 };
