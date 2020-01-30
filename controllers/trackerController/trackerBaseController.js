@@ -24,6 +24,20 @@ var logUserPageLand = function(payload, callback) {
   callback(response);
 };
 
+var getData = async function(callback) {
+  const response = await new Promise((resolve, reject) => {
+    TrackerService.get({}, null, {}, (err, data) => {
+      if (err)
+        console.error(err);
+
+      resolve(data);
+    });
+  });
+
+  callback(response);
+};
+
 module.exports = {
-  logUserPageLand: logUserPageLand
+  logUserPageLand: logUserPageLand,
+  getData: getData
 };

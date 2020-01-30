@@ -67,6 +67,14 @@ const init = async () => {
     });
 
     server.route({
+      method: "GET",
+      path: "/tracker-info",
+      handler: function(req, res) {
+        return res.view("tracker", {'data': 'test'});
+      }
+    });
+
+    server.route({
         path: "/resources/{file*}",
         method: "GET",
         handler: {

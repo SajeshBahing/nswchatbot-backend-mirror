@@ -21,7 +21,30 @@ const postPageLand = {
     }
 };
 
+const getTrackerData = {
+  method: "get",
+  path: "/api/tracker",
+  config: {
+      description: "get all tracking data",
+      tags: ["api", "demo", 'post'],
+      handler: async function (request, h) { 
+        return new Promise((ressolve, reject) => {
+          Controller.TrackerController.getData((response) => {
+            ressolve(
+              UniversalFunctions.sendSuccess(
+                UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
+                  .DEFAULT,
+                response
+              )
+            );
+          });
+        });
+      }
+  }
+};
+
 var TrackerRoute = [
-    postPageLand
+    postPageLand,
+    getTrackerData
   ];
 module.exports = TrackerRoute;

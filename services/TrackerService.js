@@ -6,7 +6,15 @@ var addData = function(objToSave, callback) {
   new Models.Tracker(objToSave).save(callback);
 };
 
+var getData = function (criteria, projection, options, callback) {
+  if (typeof options !== 'undefined')
+      options.lean = true;
+  Models.Tracker.find(criteria, projection, options, callback);
+};
+
+
 
 module.exports = {
-  add: addData
+  add: addData,
+  get: getData
 };
